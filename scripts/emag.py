@@ -82,6 +82,14 @@ def get_page_content(url):
     return None
 
 
+def get_page(url):
+    pass
+
+
+def write_to_log(message):
+    pass
+
+
 def get_prices(url):
     current_page = 0
     page = requests.get(url)
@@ -105,14 +113,14 @@ def get_prices(url):
                 entry = (name, price, availability, link, image)
                 emag_db.writerow(entry)
             current_page += 1
-            time.sleep(15)
+            time.sleep(10)
             page_url = "{0}p{1}/c".format(url[:-1], current_page)
             page = get_page_content(page_url)
             while not page:
                 if current_page > number_of_pages:
                     break
                 current_page += 1
-                time.sleep(15)
+                time.sleep(10)
                 page_url = "{0}p{1}/c".format(url[:-1], current_page)
                 page = get_page_content(page_url)
             print current_page + 1
@@ -123,19 +131,23 @@ def run():
     # Using a log file to store all the subcategories from which we know the
     # prices from, we read the visited categories from the log a put them in a
     # list.
-    logs = open('logs/emag-{0}.log'.format(time.strftime("%d-%m-%y")), 'r+')
+    logs = open('logs/emag-{0}.log'.format(time.strftime("%d-%m-%y")), 'a+')
     for cat in logs:
         visited_categories.append(cat)
     list_of_categories = open("subcategories-emag.txt", 'r')
     for category in list_of_categories:
+        print category
         if category in visited_categories:
             # if the subcategory is already in the log the script skips it.
             print "This category already read"
             continue
         else:
-            print category
+            response = requests.head(category[:-1])
+            if not response.ok:
+                print "Link not available"
+                continue
             get_prices(category[:-1])
-            logs.write("{0}\n".format(category))
+            logs.write("{0}".format(category))
             time.sleep(15)
     logs.close()
 
