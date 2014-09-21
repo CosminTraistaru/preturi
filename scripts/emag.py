@@ -7,7 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
-
+DELAY = 10
 categories = []
 subcategories = []
 
@@ -60,7 +60,7 @@ def get_page_content(url):
     try:
         page = requests.get(url, timeout=40)
         if not page.ok:
-            time.sleep(10)
+            time.sleep(DELAY)
             page = requests.get(url, timeout=40)
             if not page.ok:
                 raise NameError("Page was not loaded")
@@ -113,14 +113,14 @@ def get_prices(url):
                 entry = (name, price, availability, link, image)
                 emag_db.writerow(entry)
             current_page += 1
-            time.sleep(10)
+            time.sleep(DELAY)
             page_url = "{0}p{1}/c".format(url[:-1], current_page)
             page = get_page_content(page_url)
             while not page:
                 if current_page > number_of_pages:
                     break
                 current_page += 1
-                time.sleep(10)
+                time.sleep(DELAY)
                 page_url = "{0}p{1}/c".format(url[:-1], current_page)
                 page = get_page_content(page_url)
             print current_page + 1
@@ -148,7 +148,7 @@ def run():
                 continue
             get_prices(category[:-1])
             logs.write("{0}".format(category))
-            time.sleep(15)
+            time.sleep(DELAY)
     logs.close()
 
 if __name__ == '__main__':
