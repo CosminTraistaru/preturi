@@ -131,7 +131,10 @@ def run():
     # Using a log file to store all the subcategories from which we know the
     # prices from, we read the visited categories from the log a put them in a
     # list.
-    logs = open('logs/emag-{0}.log'.format(time.strftime("%d-%m-%y")), 'a+')
+    logs = open('logs/emag-{0}.log'.format(time.strftime("%d-%m-%y")), 'a')
+    logs.close()
+    # Not the cleanest way of making sure that the file exists
+    logs = open('logs/emag-{0}.log'.format(time.strftime("%d-%m-%y")), 'r+')
     for cat in logs:
         visited_categories.append(cat)
     list_of_categories = open("subcategories-emag.txt", 'r')
