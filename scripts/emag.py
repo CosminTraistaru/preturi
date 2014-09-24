@@ -1,15 +1,39 @@
 import time
 import csv
-import unicodedata
 import re
+
 import requests
+import unicodedata
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
+
 DELAY = 10
 categories = []
 subcategories = []
+ce_vrem = ["laptopuri",
+           "telefoane",
+           "tablete",
+           "monitoare",
+           "desktop",
+           "router",
+           "televizoare",
+           "home-cinema",
+           "audio",
+           "mediaplayer",
+           "aparate-foto",
+           "camere-video",
+           "console-",
+           "genti",
+           "mouse",
+           "tastaturi",
+           "espressor",
+           "casti",
+           "boxe",
+           "ipod",
+           "ebook",
+           ]
 
 
 def do_stuff():
@@ -23,7 +47,9 @@ def do_stuff():
         driver.find_elements_by_css_selector(".menuSecondaryList .column a")
     for category in category_list:
         categories.append(category.get_attribute("href"))
-    f = open("subcategories-emag.txt", 'a')
+    # page = requests.get("http://www.emag.ro/homepage")
+    # soup = BeautifulSoup(page.text)
+    f = open("subcategories-emag.txt", 'w')
     for category in categories:
         driver.get(category)
         subcategory_list = driver.find_elements_by_css_selector(
@@ -137,9 +163,18 @@ def run():
     logs = open('logs/emag-{0}.log'.format(time.strftime("%d-%m-%y")), 'r+')
     for cat in logs:
         visited_categories.append(cat)
-    list_of_categories = open("subcategories-emag.txt", 'r')
+    list_of_categories = open("../subcategories-emag.txt", 'r')
+    print ce_vrem
     for category in list_of_categories:
+        go = False
+        for interest in ce_vrem:
+            if interest in category:
+                go = True
+                break
         print category
+        if not go:
+            print "Category is not interesting"
+            continue
         if category in visited_categories:
             # if the subcategory is already in the log the script skips it.
             print "This category already read"
