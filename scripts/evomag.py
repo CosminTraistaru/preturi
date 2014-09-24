@@ -63,7 +63,7 @@ def get_prices(url="http://www.emag.ro/laptopuri/c"):
     for produs in produse:
         print produs.find_next("a")['title']
         print produs.find_next(class_='money-int').text
-
+        produs.find('br').next
 
 
 

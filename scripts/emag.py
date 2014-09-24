@@ -163,7 +163,7 @@ def run():
     logs = open('logs/emag-{0}.log'.format(time.strftime("%d-%m-%y")), 'r+')
     for cat in logs:
         visited_categories.append(cat)
-    list_of_categories = open("../subcategories-emag.txt", 'r')
+    list_of_categories = open("subcategories-emag.txt", 'r')
     print ce_vrem
     for category in list_of_categories:
         go = False
