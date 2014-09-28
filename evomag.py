@@ -181,13 +181,13 @@ def run():
             continue
         try:
             get_prices(sub)
-        except Exception as e:
+        except TypeError as e:
             error_file = open("error.log", 'a')
             error_file.write("{} {} {}\n".format(time.strftime("%d-%m-%y %H-%M"),
                                                  e.message, sub))
             error_file.close()
             pass
-        except TypeError as e:
+        except Exception as e:
             error_file = open("error.log", 'a')
             error_file.write("{} {} {}\n".format(time.strftime("%d-%m-%y %H-%M"),
                                                  e.message, sub))
