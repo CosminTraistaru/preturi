@@ -10,9 +10,9 @@ import requests
 from bs4 import BeautifulSoup
 
 
-categories = []
-subcategories = []
-ce_vrem = ["PORTABILE",
+CATEGORIES = []
+SUBCATEGORIES = []
+CE_VREM = ["PORTABILE",
            "SISTEME-PC",
            "COMPONENTE-PC",
            "SOLUTII-MOBILE",
@@ -31,14 +31,26 @@ SITE_URL = "http://www.evomag.ro"
 
 
 def do_stuff():
+    """
+    This method gets all the subcategories from the site, and saves them
+    to a file.
+    """
     page = requests.get("http://www.evomag.ro")
+
     soup = BeautifulSoup(page.text)
     category_list = soup.find_all(class_="left_category_subcategory_container")
     for category in category_list:
-        categories.append(category.next['href'])
-    for category in categories:
+        CATEGORIES.append(category.next['href'])
+    for category in CATEGORIES:
         time.sleep(DELAY)
-        page = requests.get("http://www.evomag.ro{}".format(category))
+        error_file = open("error.log", 'a')
+        try:
+            page = requests.get("http://www.evomag.ro{}".format(category))
+        except requests.ConnectionError as e:
+            error_file.write("{0} - Some error - {1} - {2}\n".format(
+                time.strftime("%d-%m-%y %H-%M"), e.message, "http://www.evomag.ro{}".format(category)))
+        error_file.close()
+        # page = requests.get("http://www.evomag.ro{}".format(category))
         try:
             soup = BeautifulSoup(page.text)
             subcategory_div = soup.find_all(class_="categorie_sumar")[0]
@@ -48,16 +60,16 @@ def do_stuff():
                     continue
                 if 'javascript'in sub:
                     continue
-                if sub in categories:
+                if sub in CATEGORIES:
                     continue
-                if sub['href'] in subcategories:
+                if sub['href'] in SUBCATEGORIES:
                     continue
-                subcategories.append(sub['href'])
+                SUBCATEGORIES.append(sub['href'])
         except IndexError as e:
             print e.message
             pass
     f = open("subcategories-evomag.txt", 'w')
-    for s in subcategories:
+    for s in SUBCATEGORIES:
         f.write("http://www.evomag.ro{}\n".format(s))
         print s
     f.close()
@@ -157,7 +169,7 @@ def run():
             subcats.append(str(cat).replace('\n', ''))
     for sub in subcats:
         go = False
-        for interest in ce_vrem:
+        for interest in CE_VREM:
             if interest in sub:
                 go = True
                 break
