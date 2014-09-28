@@ -48,7 +48,7 @@ def do_stuff():
     This method retrieves all the links to all subcategories from emag.ro
     It's the only method that uses selenium with the PhantomJS browser
     """
-    driver = webdriver.PhantomJS()
+    driver = webdriver.Firefox()
     driver.get("http://www.emag.ro")
     category_list = \
         driver.find_elements_by_css_selector(".menuSecondaryList .column a")
