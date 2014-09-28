@@ -46,6 +46,9 @@ def do_stuff():
         error_file = open("error.log", 'a')
         try:
             page = requests.get("http://www.evomag.ro{}".format(category))
+        except ValueError as e:
+            error_file.write("{0} - Some error - {1} - {2}\n".format(
+                time.strftime("%d-%m-%y %H-%M"), e.message, "http://www.evomag.ro{}".format(category)))
         except requests.ConnectionError as e:
             error_file.write("{0} - Some error - {1} - {2}\n".format(
                 time.strftime("%d-%m-%y %H-%M"), e.message, "http://www.evomag.ro{}".format(category)))
