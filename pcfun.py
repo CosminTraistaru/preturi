@@ -123,12 +123,13 @@ def run():
         #     if interest in sub:
         #         go = True
         #         break
-        # with open('logs/pcfun-{0}.log'.format(time.strftime("%d-%m-%y")), 'r+') as logs:
-        #     for log in logs:
-        #         if sub in log:
-        #             go = False
+        with open('logs/pcfun-{0}.log'.format(time.strftime("%d-%m-%y")), 'r') as logs:
+            for log in logs:
+                if sub in log:
+                    go = False
         try:
-            if not requests.head(sub).ok:
+            if not requests.get(sub).ok:
+                time.sleep(DELAY)
                 go = False
         except requests.ConnectionError as e:
             error_file = open("error.log", 'a')
@@ -138,9 +139,9 @@ def run():
             go = False
             pass
         print sub
-        # if not go:
-        #     print "Category is not interesting"
-        #     continue
+        if not go:
+            print "Category is not interesting"
+            continue
         try:
             get_prices(sub)
         except TypeError as e:
