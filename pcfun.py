@@ -57,7 +57,7 @@ def get_page_content(url):
                 raise NameError("Page was not loaded")
         return page
     except requests.Timeout:
-        print "!!! caca !!!- {}".format(url)
+        print "!!! caca !!!- {0}".format(url)
         error_file.write("{0} - Timeout exception - {1}\n".
                          format(time.strftime("%d-%m-%y %H-%M"), url))
         pass
@@ -102,7 +102,7 @@ def get_prices(url="http://www.pcfun.ro/ultrabook/"):
                 entry = (name, price, availability, link, imagine)
                 pcfun_db.writerow(entry)
             current_page += 1
-            page_url = "{}pagina{}/".format(url, current_page)
+            page_url = "{0}pagina{1}/".format(url, current_page)
             page = get_page_content(page_url)
             time.sleep(DELAY)
             print current_page
@@ -111,7 +111,7 @@ def get_prices(url="http://www.pcfun.ro/ultrabook/"):
                     break
                 current_page += 1
                 time.sleep(DELAY)
-                page_url = "{}pagina{}/".format(url, current_page)
+                page_url = "{0}pagina{1}/".format(url, current_page)
                 page = get_page_content(page_url)
 
 
@@ -135,8 +135,8 @@ def run():
                 go = False
         except requests.ConnectionError as e:
             error_file = open("error.log", 'a')
-            error_file.write("{} {} {}\n".format(time.strftime("%d-%m-%y %H-%M"),
-                                                 e.message, sub))
+            error_file.write("{0} {1} {2}\n".format(time.strftime("%d-%m-%y %H-%M"),
+                                                    e.message, sub))
             error_file.close()
             go = False
             pass
@@ -148,14 +148,14 @@ def run():
             get_prices(sub)
         except TypeError as e:
             error_file = open("error.log", 'a')
-            error_file.write("{} {} {}\n".format(time.strftime("%d-%m-%y %H-%M"),
-                                                 e.message, sub))
+            error_file.write("{0} {1} {2}\n".format(time.strftime("%d-%m-%y %H-%M"),
+                                                    e.message, sub))
             error_file.close()
             pass
         except Exception as e:
             error_file = open("error.log", 'a')
-            error_file.write("{} {} {}\n".format(time.strftime("%d-%m-%y %H-%M"),
-                                                 e.message, sub))
+            error_file.write("{0} {1} {2}\n".format(time.strftime("%d-%m-%y %H-%M"),
+                                                    e.message, sub))
             error_file.close()
             pass
 
