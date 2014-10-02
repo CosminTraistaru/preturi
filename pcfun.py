@@ -30,7 +30,7 @@ def do_stuff():
         SUBCATEGORIES.append(str(subcateg['href']))
     f = open("subcategories-pcfun.txt", 'w')
     for s in SUBCATEGORIES:
-        f.write("{}\n".format(s))
+        f.write("{0}\n".format(s))
     f.close()
 
 
