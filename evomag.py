@@ -153,6 +153,7 @@ def get_prices(url):
                 evomag_db.writerow(entry)
             current_page += 1
             page_url = "{0}{1}{2}".format(url, "Filtru/Pagina:", current_page)
+            time.sleep(DELAY)
             page = get_page_content(page_url)
             while not page:
                 if current_page > number_of_pages:
