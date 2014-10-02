@@ -50,10 +50,10 @@ def do_stuff():
             page = requests.get("http://www.evomag.ro{}".format(category))
         except ValueError as e:
             error_file.write("{0} - Some error - {1} - {2}\n".format(
-                time.strftime("%d-%m-%y %H-%M"), e, "http://www.evomag.ro{}".format(category)))
+                time.strftime("%d-%m-%y %H-%M"), e.message, "http://www.evomag.ro{0}".format(category)))
         except requests.ConnectionError as e:
             error_file.write("{0} - Some error - {1} - {2}\n".format(
-                time.strftime("%d-%m-%y %H-%M"), e, "http://www.evomag.ro{}".format(category)))
+                time.strftime("%d-%m-%y %H-%M"), e.message, "http://www.evomag.ro{0}".format(category)))
         error_file.close()
         try:
             soup = BeautifulSoup(page.text)
@@ -70,11 +70,11 @@ def do_stuff():
                     continue
                 SUBCATEGORIES.append(sub['href'])
         except IndexError as e:
-            print e
+            print e.message
             pass
     f = open("subcategories-evomag.txt", 'w')
     for s in SUBCATEGORIES:
-        f.write("http://www.evomag.ro{}\n".format(s))
+        f.write("http://www.evomag.ro{0}\n".format(s))
         print s
     f.close()
 
@@ -90,18 +90,18 @@ def get_page_content(url):
                 raise NameError("Page was not loaded")
         return page
     except requests.Timeout:
-        print "!!! caca !!!- {}".format(url)
+        print "!!! caca !!!- {0}".format(url)
         error_file.write("{0} - Timeout exception - {1}\n".
                          format(time.strftime("%d-%m-%y %H-%M"), url))
         pass
     except NameError as e:
         error_file.write("{0} - Page was not loaded exception - {1} - {2}\n".
                          format(time.strftime("%d-%m-%y %H-%M"),
-                                e, url))
+                                e.message, url))
         pass
     except Exception as e:
         error_file.write("{0} - Some error - {1} - {2}\n".format(
-            time.strftime("%d-%m-%y %H-%M"), e, url))
+            time.strftime("%d-%m-%y %H-%M"), e.message, url))
     error_file.close()
     return None
 
@@ -144,28 +144,27 @@ def get_prices(url):
                 name = get_name(produs.find_next("a")['title'])  # titlu
                 price = get_price(produs.find(class_='discount_span').
                                   previous_sibling)
-                link = "{}{}".format(SITE_URL, produs.find('a')['href'])
-                imagine = "{}{}".format(SITE_URL, produs.find('img')['src'])
+                link = "{0}{1}".format(SITE_URL, produs.find('a')['href'])
+                imagine = "{0}{1}".format(SITE_URL, produs.find('img')['src'])
                 availability = get_stoc(produs.find
                                         (class_='stoc_produs').
                                         find_next('span').text)
                 entry = (name, price, availability, link, imagine)
                 evomag_db.writerow(entry)
             current_page += 1
-            page_url = "{}{}{}".format(url, "Filtru/Pagina:", current_page)
+            page_url = "{0}{1}{2}".format(url, "Filtru/Pagina:", current_page)
             page = get_page_content(page_url)
             while not page:
                 if current_page > number_of_pages:
                     break
                 current_page += 1
                 time.sleep(DELAY)
-                page_url = "{}{}{}".format(url, "Filtru/Pagina:", current_page)
+                page_url = "{0}{1}{2}".format(url, "Filtru/Pagina:", current_page)
                 page = get_page_content(page_url)
 
 
 def run():
     subcats = []
-    # do_stuff()
     logs = open('logs/evomag-{0}.log'.format(time.strftime("%d-%m-%y")), 'a')
     logs.close()
     with open("subcategories-evomag.txt", 'r') as f:
@@ -186,8 +185,8 @@ def run():
                 go = False
         except requests.ConnectionError as e:
             error_file = open("error.log", 'a')
-            error_file.write("{} {} {}\n".format(time.strftime("%d-%m-%y %H-%M"),
-                                                 e, sub))
+            error_file.write("{0} {1} {2}\n".format(time.strftime("%d-%m-%y %H-%M"),
+                                                    e.message, sub))
             error_file.close()
             go = False
             pass
@@ -199,14 +198,14 @@ def run():
             get_prices(sub)
         except TypeError as e:
             error_file = open("error.log", 'a')
-            error_file.write("{} {} {}\n".format(time.strftime("%d-%m-%y %H-%M"),
-                                                 e, sub))
+            error_file.write("{0} {1} {2}\n".format(time.strftime("%d-%m-%y %H-%M"),
+                                                    e.message, sub))
             error_file.close()
             pass
         except Exception as e:
             error_file = open("error.log", 'a')
-            error_file.write("{} {} {}\n".format(time.strftime("%d-%m-%y %H-%M"),
-                                                 e, sub))
+            error_file.write("{0} {1} {2}\n".format(time.strftime("%d-%m-%y %H-%M"),
+                                                    e.message, sub))
             error_file.close()
             pass
 
