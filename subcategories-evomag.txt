@@ -4,6 +4,7 @@ http://www.evomag.ro/PORTABILE-Convertibile/
 http://www.evomag.ro/PORTABILE-Tablete/
 http://www.evomag.ro/PORTABILE-eBook-Readere/
 http://www.evomag.ro/PORTABILE-Accesorii-eBook/
+http://www.evomag.ro/PORTABILE-Ultra-Mobile-PC/
 http://www.evomag.ro/PORTABILE-Accesorii-laptop/
 http://www.evomag.ro/PORTABILE-Accesorii-laptop-Alte-accesorii-laptop-uri/
 http://www.evomag.ro/PORTABILE-Accesorii-laptop-Accesorii-mac/
@@ -20,6 +21,7 @@ http://www.evomag.ro/PORTABILE-Accesorii-laptop-Docking-Port-Replicatoare/
 http://www.evomag.ro/PORTABILE-Accesorii-laptop-Keypad-laptop/
 http://www.evomag.ro/PORTABILE-Accesorii-laptop-KeyLock-laptop/
 http://www.evomag.ro/PORTABILE-Accesorii-laptop-Acc.-Protectie-Laptop/
+http://www.evomag.ro/PORTABILE-Accesorii-laptop-Display-Laptop/
 http://www.evomag.rojavascript://
 http://www.evomag.ro/PORTABILE-Accesorii-Tablete/
 http://www.evomag.ro/PORTABILE-Accesorii-Tablete-Huse-Tablete/
@@ -29,6 +31,7 @@ http://www.evomag.ro/PORTABILE-Accesorii-Tablete-Cabluri-de-date/
 http://www.evomag.ro/PORTABILE-Accesorii-Tablete-Incarcator-auto/
 http://www.evomag.ro/PORTABILE-Accesorii-Tablete-Incarcator-retea/
 http://www.evomag.ro/PORTABILE-Accesorii-Tablete-Stylus-Pen/
+http://www.evomag.ro/PORTABILE-Accesorii-Tablete-Suport-Auto/
 http://www.evomag.ro/PORTABILE-Accesorii-Tablete-Alte-accesorii-tablete/
 http://www.evomag.ro/SISTEME-PC-All-In-One-PC/
 http://www.evomag.ro/SISTEME-PC-Branduri/
@@ -94,6 +97,7 @@ http://www.evomag.ro/COMPONENTE-PC-Protectie-electrica-Module/
 http://www.evomag.ro/COMPONENTE-PC-Protectie-electrica-Cabinete-UPS/
 http://www.evomag.ro/SOLUTII-MOBILE-Telefoane-mobile/
 http://www.evomag.ro/SOLUTII-MOBILE-Smartwatch/
+http://www.evomag.ro/SOLUTII-MOBILE-Accesorii-Smartwatch/
 http://www.evomag.ro/SOLUTII-MOBILE-Telefoane-Seniori/
 http://www.evomag.ro/SOLUTII-MOBILE-Telefoane-Fixe/
 http://www.evomag.ro/SOLUTII-MOBILE-Walkie-Talkie/
@@ -107,12 +111,15 @@ http://www.evomag.ro/SOLUTII-MOBILE-Accesorii-telefoane-Incarcatori/
 http://www.evomag.ro/SOLUTII-MOBILE-Accesorii-telefoane-Huse-Telefoane/
 http://www.evomag.ro/SOLUTII-MOBILE-Accesorii-telefoane-Carcase-telefoane/
 http://www.evomag.ro/SOLUTII-MOBILE-Accesorii-telefoane-Cabluri-de-date/
+http://www.evomag.ro/SOLUTII-MOBILE-Accesorii-telefoane-Cureluse/
 http://www.evomag.ro/SOLUTII-MOBILE-Accesorii-telefoane-Suport/
 http://www.evomag.ro/SOLUTII-MOBILE-Accesorii-telefoane-Mini-difuzoare/
 http://www.evomag.ro/SOLUTII-MOBILE-Accesorii-telefoane-Folii-Protectie-Telefoane/
 http://www.evomag.ro/TELEVIZOARE-LED-TV/
+http://www.evomag.ro/TELEVIZOARE-Plasma-TV/
 http://www.evomag.ro/TELEVIZOARE-Accesorii-TV/
 http://www.evomag.ro/TELEVIZOARE-Accesorii-TV-Suporturi-perete-mobile/
+http://www.evomag.ro/TELEVIZOARE-Accesorii-TV-Cabluri-multimedia/
 http://www.evomag.ro/TELEVIZOARE-Accesorii-TV-Adaptor-Wireless/
 http://www.evomag.ro/TELEVIZOARE-Accesorii-TV-Ochelari-3D/
 http://www.evomag.ro/TELEVIZOARE-Accesorii-TV-Alte-accesorii/
@@ -189,7 +196,6 @@ http://www.evomag.ro/VIDEO-Accesorii-Camere-Video-Acumulatori-Video/
 http://www.evomag.ro/VIDEO-Accesorii-Camere-Video-Accesorii-camere-video-pentru-sporturi-extreme/
 http://www.evomag.ro/VIDEO-Accesorii-Camere-Video-Genti-Video/
 http://www.evomag.ro/VIDEO-Accesorii-Proiector/
-http://www.evomag.ro/VIDEO-Accesorii-Proiector-Table-interactive/
 http://www.evomag.ro/VIDEO-Accesorii-Proiector-Ecrane-de-proiectie/
 http://www.evomag.ro/VIDEO-Accesorii-Proiector-Lampi-Proiectoare/
 http://www.evomag.ro/VIDEO-Accesorii-Proiector-Genti-Proiectoare/
