@@ -11,6 +11,8 @@ import requests
 
 from bs4 import BeautifulSoup
 
+import base
+
 
 CATEGORIES = []
 SUBCATEGORIES = []
@@ -79,33 +81,6 @@ def do_stuff():
     f.close()
 
 
-def get_page_content(url):
-    error_file = open("error.log", 'a')
-    try:
-        page = requests.get(url, timeout=40)
-        if not page.ok:
-            time.sleep(DELAY)
-            page = requests.get(url, timeout=40)
-            if not page.ok:
-                raise NameError("Page was not loaded")
-        return page
-    except requests.Timeout:
-        print "!!! caca !!!- {0}".format(url)
-        error_file.write("{0} - Timeout exception - {1}\n".
-                         format(time.strftime("%d-%m-%y %H-%M"), url))
-        pass
-    except NameError as e:
-        error_file.write("{0} - Page was not loaded exception - {1} - {2}\n".
-                         format(time.strftime("%d-%m-%y %H-%M"),
-                                e.message, url))
-        pass
-    except Exception as e:
-        error_file.write("{0} - Some error - {1} - {2}\n".format(
-            time.strftime("%d-%m-%y %H-%M"), e.message, url))
-    error_file.close()
-    return None
-
-
 def get_name(title):
     return ' '.join(
         [re.sub('[^A-Za-z0-9.()]+', '', word) for word in title.split()]
@@ -154,14 +129,14 @@ def get_prices(url):
             current_page += 1
             page_url = "{0}{1}{2}".format(url, "Filtru/Pagina:", current_page)
             time.sleep(DELAY)
-            page = get_page_content(page_url)
+            page = base.get_page_content(page_url)
             while not page:
                 if current_page > number_of_pages:
                     break
                 current_page += 1
                 time.sleep(DELAY)
                 page_url = "{0}{1}{2}".format(url, "Filtru/Pagina:", current_page)
-                page = get_page_content(page_url)
+                page = base.get_page_content(page_url)
 
 
 def run():

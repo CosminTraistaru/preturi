@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-__author__ = 'ctraistaru'
-
 import time
 import re
 import csv
@@ -10,6 +8,8 @@ import unicodedata
 import requests
 
 from bs4 import BeautifulSoup
+
+import base
 
 CATEGORIES = []
 SUBCATEGORIES = []
@@ -46,33 +46,6 @@ def get_price(text):
     return match.group()
 
 
-def get_page_content(url):
-    error_file = open("error.log", 'a')
-    try:
-        page = requests.get(url, timeout=40)
-        if not page.ok:
-            time.sleep(DELAY)
-            page = requests.get(url, timeout=40)
-            if not page.ok:
-                raise NameError("Page was not loaded")
-        return page
-    except requests.Timeout:
-        print "!!! caca !!!- {0}".format(url)
-        error_file.write("{0} - Timeout exception - {1}\n".
-                         format(time.strftime("%d-%m-%y %H-%M"), url))
-        pass
-    except NameError as e:
-        error_file.write("{0} - Page was not loaded exception - {1} - {2}\n".
-                         format(time.strftime("%d-%m-%y %H-%M"),
-                                e.message, url))
-        pass
-    except Exception as e:
-        error_file.write("{0} - Some error - {1} - {2}\n".format(
-            time.strftime("%d-%m-%y %H-%M"), e.message, url))
-    error_file.close()
-    return None
-
-
 def get_number_of_pages(text):
     match = re.search(r'\d+/$', str(text))
     if match:
@@ -103,7 +76,7 @@ def get_prices(url="http://www.pcfun.ro/ultrabook/"):
                 pcfun_db.writerow(entry)
             current_page += 1
             page_url = "{0}pagina{1}/".format(url, current_page)
-            page = get_page_content(page_url)
+            page = base.get_page_content(page_url)
             time.sleep(DELAY)
             print current_page
             while not page:
@@ -112,7 +85,7 @@ def get_prices(url="http://www.pcfun.ro/ultrabook/"):
                 current_page += 1
                 time.sleep(DELAY)
                 page_url = "{0}pagina{1}/".format(url, current_page)
-                page = get_page_content(page_url)
+                page = base.get_page_content(page_url)
 
 
 def run():
@@ -121,10 +94,6 @@ def run():
 
     for sub in SUBCATEGORIES:
         go = True
-        # for interest in CE_VREM:
-        #     if interest in sub:
-        #         go = True
-        #         break
         with open('logs/pcfun-{0}.log'.format(time.strftime("%d-%m-%y")), 'r') as logs:
             for log in logs:
                 if sub in log:
@@ -162,7 +131,6 @@ def run():
         logs = open('logs/pcfun-{0}.log'.format(time.strftime("%d-%m-%y")), 'a')
         logs.write("{0}\n".format(sub))
         logs.close()
-
 
 
 do_stuff()

@@ -3,6 +3,7 @@
 import time
 import csv
 import re
+import logging
 
 import requests
 import unicodedata
@@ -10,39 +11,42 @@ import unicodedata
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
+import base
+
 
 DELAY = 10
 categories = []
 subcategories = []
-ce_vrem = ["laptopuri",
-           "telefoane",
-           "tablete",
-           "monitoare",
-           "desktop",
-           "router",
-           "televizoare",
-           "home-cinema",
-           "audio",
-           "mediaplayer",
-           "foto",
-           "obiective",
-           "blitzuri",
-           "dsrl",
-           "camere-video",
-           "console-",
-           "genti",
-           "mouse",
-           "tastaturi",
-           "espressor",
-           "casti",
-           "boxe",
-           "ipod",
-           "ebook",
-           "memorii",
-           "placi_baza",
-           "placi_video",
-           "ssd",
-           ]
+WANTED = ["laptopuri",
+          "telefoane",
+          "tablete",
+          "monitoare",
+          "desktop",
+          "router",
+          "televizoare",
+          "home-cinema",
+          "audio",
+          "mediaplayer",
+          "foto",
+          "obiective",
+          "blitzuri",
+          "dsrl",
+          "camere-video",
+          "console-",
+          "genti",
+          "mouse",
+          "tastaturi",
+          "espressor",
+          "casti",
+          "boxe",
+          "ipod",
+          "ebook",
+          "memorii",
+          "placi_baza",
+          "placi_video",
+          "ssd"
+          ]
+logger = logging.getLogger(__name__)
 
 
 def do_stuff():
@@ -56,8 +60,6 @@ def do_stuff():
         driver.find_elements_by_css_selector(".menuSecondaryList .column a")
     for category in category_list:
         categories.append(category.get_attribute("href"))
-    # page = requests.get("http://www.emag.ro/homepage")
-    # soup = BeautifulSoup(page.text)
     f = open("subcategories-emag.txt", 'w')
     for category in categories:
         driver.get(category)
@@ -68,7 +70,9 @@ def do_stuff():
             if "http://openx4.emag.ro" in subcategory.get_attribute("href"):
                 continue
             f.write("{}\n".format(subcategory.get_attribute("href")))
-            print subcategory.get_attribute("href")
+            logger.info(subcategory.get_attribute("href"))
+            # logger.warn()
+            # logger.error()
             subcategories.append(subcategory.get_attribute("href"))
     f.close()
     driver.quit()
@@ -88,33 +92,6 @@ def get_availability(av):
 def get_number_of_pages(div):
     pages = unicodedata.normalize('NFKD', div).encode('ascii', 'ignore')
     return int(pages.replace('\n', '').replace('  ', '')[-2:])
-
-
-def get_page_content(url):
-    error_file = open("error.log", 'a')
-    try:
-        page = requests.get(url, timeout=40)
-        if not page.ok:
-            time.sleep(DELAY)
-            page = requests.get(url, timeout=40)
-            if not page.ok:
-                raise NameError("Page was not loaded")
-        return page
-    except requests.Timeout:
-        print "!!! caca !!!- {}".format(url)
-        error_file.write("{0} - Timeout exception - {1}\n".
-                         format(time.strftime("%d-%m-%y %H-%M"), url))
-        pass
-    except NameError as e:
-        error_file.write("{0} - Page was not loaded exception - {1} - {2}\n".
-                         format(time.strftime("%d-%m-%y %H-%M"),
-                                e.message, url))
-        pass
-    except Exception as e:
-        error_file.write("{0} - Some error - {1} - {2}\n".format(
-            time.strftime("%d-%m-%y %H-%M"), e.message, url))
-    error_file.close()
-    return None
 
 
 def get_page(url):
@@ -150,14 +127,14 @@ def get_prices(url):
             current_page += 1
             time.sleep(DELAY)
             page_url = "{0}p{1}/c".format(url[:-1], current_page)
-            page = get_page_content(page_url)
+            page = base.get_page_content(page_url)
             while not page:
                 if current_page > number_of_pages:
                     break
                 current_page += 1
                 time.sleep(DELAY)
                 page_url = "{0}p{1}/c".format(url[:-1], current_page)
-                page = get_page_content(page_url)
+                page = base.get_page_content(page_url)
             print current_page + 1
 
 
@@ -173,10 +150,10 @@ def run():
     for cat in logs:
         visited_categories.append(cat)
     list_of_categories = open("subcategories-emag.txt", 'r')
-    print ce_vrem
+    print WANTED
     for category in list_of_categories:
         go = False
-        for interest in ce_vrem:
+        for interest in WANTED:
             if interest in category:
                 go = True
                 break
