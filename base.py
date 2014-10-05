@@ -3,7 +3,14 @@
 import requests
 import time
 
+from boto.s3.connection import S3Connection
+from boto.s3.key import Key
+
+
+AWS_ACCESS_KEY_ID = "AKIAIYIAPEOQ2T6AF7MQ"
+AWS_SECRET_ACCESS_KEY = "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"
 DELAY = 10
+BUCKET = 'preturi'
 
 
 def get_page_content(url):
@@ -31,3 +38,13 @@ def get_page_content(url):
             time.strftime("%d-%m-%y %H-%M"), e.message, url))
     error_file.close()
     return None
+
+
+def send_to_s3(file_to_send):
+    conn = S3Connection(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+    b = conn.get_bucket(BUCKET)
+    k = Key(b)
+    f = open(file_to_send, 'rb')
+    k.key = file_to_send
+    k.set_contents_from_filename(f)
+    k.send_file()
