@@ -48,3 +48,4 @@ def send_to_s3(file_to_send):
     k.key = file_to_send
     k.set_contents_from_filename(f)
     k.send_file()
+    f.close()
