@@ -191,6 +191,5 @@ def run():
 
 do_stuff()
 run()
-file_to_send = 'csv/evomag/evomag-{0}.csv'.format(time.strftime("%d-%m-%y"))
-base.send_to_s3(file_to_send)
+
 
