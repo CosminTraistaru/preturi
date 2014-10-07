@@ -44,7 +44,12 @@ WANTED = ["laptopuri",
           "memorii",
           "placi_baza",
           "placi_video",
-          "ssd"
+          "ssd",
+          "nas",
+          "spalat",
+          "fiare",
+          "frigorifice",
+          "anvelope-auto"
           ]
 logger = logging.getLogger(__name__)
 
@@ -70,9 +75,6 @@ def do_stuff():
             if "http://openx4.emag.ro" in subcategory.get_attribute("href"):
                 continue
             f.write("{}\n".format(subcategory.get_attribute("href")))
-            logger.info(subcategory.get_attribute("href"))
-            # logger.warn()
-            # logger.error()
             subcategories.append(subcategory.get_attribute("href"))
     f.close()
     driver.quit()
@@ -157,6 +159,8 @@ def run():
             if interest in category:
                 go = True
                 break
+        if "filter" in category:
+            go = False
         print category
         if not go:
             print "Category is not interesting"

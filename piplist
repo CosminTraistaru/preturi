@@ -2,4 +2,4 @@ requests
 beautifulsoup4
 unicodescript
 selenium
-boto
+mysql-connector-python
