@@ -3,7 +3,6 @@
 import time
 import csv
 import re
-import logging
 
 import requests
 import unicodedata
@@ -51,7 +50,6 @@ WANTED = ["laptopuri",
           "frigorifice",
           "anvelope-auto"
           ]
-logger = logging.getLogger(__name__)
 
 
 def do_stuff():
@@ -73,6 +71,8 @@ def do_stuff():
         time.sleep(5)
         for subcategory in subcategory_list:
             if "http://openx4.emag.ro" in subcategory.get_attribute("href"):
+                continue
+            if 'filter' in subcategory.get_attribute("href"):
                 continue
             f.write("{}\n".format(subcategory.get_attribute("href")))
             subcategories.append(subcategory.get_attribute("href"))
@@ -159,8 +159,6 @@ def run():
             if interest in category:
                 go = True
                 break
-        if "filter" in category:
-            go = False
         print category
         if not go:
             print "Category is not interesting"
@@ -181,4 +179,5 @@ def run():
 
 
 if __name__ == '__main__':
-    run()
+    do_stuff()
+    # run()
