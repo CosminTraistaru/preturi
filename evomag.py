@@ -160,6 +160,7 @@ def run():
             if not requests.head(sub).ok:
                 go = False
         except requests.ConnectionError as e:
+            print sub, e
             error_file = open("error.log", 'a')
             error_file.write("{0} {1} {2}\n".format(time.strftime("%d-%m-%y %H-%M"),
                                                     e, sub))
@@ -189,7 +190,7 @@ def run():
         logs.write("{}\n".format(sub))
         logs.close()
 
-do_stuff()
+# do_stuff()
 run()
 
 
