@@ -52,10 +52,10 @@ def do_stuff():
             page = requests.get("http://www.evomag.ro{}".format(category))
         except ValueError as e:
             error_file.write("{0} - Some error - {1} - {2}\n".format(
-                time.strftime("%d-%m-%y %H-%M"), e.message, "http://www.evomag.ro{0}".format(category)))
+                time.strftime("%d-%m-%y %H-%M"), e, "http://www.evomag.ro{0}".format(category)))
         except requests.ConnectionError as e:
             error_file.write("{0} - Some error - {1} - {2}\n".format(
-                time.strftime("%d-%m-%y %H-%M"), e.message, "http://www.evomag.ro{0}".format(category)))
+                time.strftime("%d-%m-%y %H-%M"), e, "http://www.evomag.ro{0}".format(category)))
         error_file.close()
         try:
             soup = BeautifulSoup(page.text)
@@ -72,7 +72,7 @@ def do_stuff():
                     continue
                 SUBCATEGORIES.append(sub['href'])
         except IndexError as e:
-            print e.message
+            print e
             pass
     f = open("subcategories-evomag.txt", 'w')
     for s in SUBCATEGORIES:
@@ -162,7 +162,7 @@ def run():
         except requests.ConnectionError as e:
             error_file = open("error.log", 'a')
             error_file.write("{0} {1} {2}\n".format(time.strftime("%d-%m-%y %H-%M"),
-                                                    e.message, sub))
+                                                    e, sub))
             error_file.close()
             go = False
             pass
@@ -175,13 +175,13 @@ def run():
         except TypeError as e:
             error_file = open("error.log", 'a')
             error_file.write("{0} {1} {2}\n".format(time.strftime("%d-%m-%y %H-%M"),
-                                                    e.message, sub))
+                                                    e, sub))
             error_file.close()
             pass
         except Exception as e:
             error_file = open("error.log", 'a')
             error_file.write("{0} {1} {2}\n".format(time.strftime("%d-%m-%y %H-%M"),
-                                                    e.message, sub))
+                                                    e, sub))
             error_file.close()
             pass
 
