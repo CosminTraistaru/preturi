@@ -3,10 +3,6 @@
 import requests
 import time
 
-
-
-AWS_ACCESS_KEY_ID = "AKIAIYIAPEOQ2T6AF7MQ"
-AWS_SECRET_ACCESS_KEY = "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"
 DELAY = 10
 BUCKET = 'preturi'
 
@@ -29,11 +25,11 @@ def get_page_content(url):
     except NameError as e:
         error_file.write("{0} - Page was not loaded exception - {1} - {2}\n".
                          format(time.strftime("%d-%m-%y %H-%M"),
-                                e.message, url))
+                                e, url))
         pass
     except Exception as e:
         error_file.write("{0} - Some error - {1} - {2}\n".format(
-            time.strftime("%d-%m-%y %H-%M"), e.message, url))
+            time.strftime("%d-%m-%y %H-%M"), e, url))
     error_file.close()
     return None
 
