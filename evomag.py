@@ -187,7 +187,7 @@ def run():
             pass
 
         logs = open('logs/evomag-{0}.log'.format(time.strftime("%d-%m-%y")), 'a')
-        logs.write("{}\n".format(sub))
+        logs.write("{0}\n".format(sub))
         logs.close()
 
 # do_stuff()
