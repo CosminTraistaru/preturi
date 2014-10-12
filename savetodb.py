@@ -4,17 +4,21 @@ __author__ = 'bobo'
 import csv
 import mysql.connector
 from mysql.connector import errorcode
-
-from mysql_conf import *
+import mysql_conf
 
 connection = None
+cursor = None
 
 
 def connect_db(config):
     try:
         global connection
+        global cursor
         connection = mysql.connector.connect(**config)
         print("Connected to database")
+        connection.autocommit = True
+        cursor = connection.cursor()
+        print cursor
     except mysql.connector.Error as error:
         if error.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
             print("Access denied to database")
@@ -26,12 +30,48 @@ def connect_db(config):
 
 def disconnect_db():
     connection.close()
+    print("Disconnected from db")
 
 
-def process_csv(file):
-    with open(file, 'r') as csvfile:
-        csvreader = csv.reader(csvfile, delimiter=',')
-        for row in csvreader:
-            print("Produs: %s ,pret: %d", row[0], row[1])
+def process_csv(file_name):
+    global cursor
 
-process_csv('csv/emag/emag-07-10-14.csv')
+    with open(file_name, 'r') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        for row in csv_reader:
+            nume_produs = row[0]
+            link_produs = row[3]
+            img_produs = row[4]
+            id_produs = get_product_id(nume_produs)
+
+            if id_produs == 0:
+                query = ("INSERT INTO `produs` (`idProdus`, `idCategorie`, `idMagazin`, `NumeProdus`, `LinkProdus`, `PozaProdus`) "
+                    "VALUES ('0', '0', '1', '"+nume_produs+"', '"+link_produs+"', '"+img_produs+"')")
+                cursor.execute(query)
+
+
+            else:
+                pass
+
+
+def get_product_id(product_name):
+    global cursor
+
+    query = "SELECT produs.idProdus FROM produs as produs WHERE produs.NumeProdus LIKE '%"+product_name+"%' "
+
+    cursor.execute(query)
+
+    result = cursor.fetchone()
+
+    if result is None:
+        product_id = 0
+    else:
+        product_id = result[0]
+
+    return product_id
+
+
+indice = get_product_id("Gig")
+print indice
+#process_csv('csv/emag/emag-07-10-14.csv')
+disconnect_db()

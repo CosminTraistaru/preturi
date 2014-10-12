@@ -1,6 +1,6 @@
 __author__ = 'bobo'
 
-mysql_config = {
+mysqlconfig = {
   'user': 'preturi',
   'password': 'preturi',
   'host': 'localhost',
