@@ -21,7 +21,7 @@ categories = [
 
 def go_to_next_page(link, page_number):
     error_file = open("error.log", 'a')
-    url = "{}?p={}".format(link, page_number)
+    url = "{0}?p={1}".format(link, page_number)
     try:
         time.sleep(DELAY)
         page = requests.get(url)
