@@ -79,7 +79,7 @@ def db():
         number_of_pages = int(links_to_no_of_pages.find_all('a')[-2].text)
         print cat
         print number_of_pages
-        for page_no in xrange(1, number_of_pages):
+        for page_no in xrange(1, number_of_pages+1):
             soup = BeautifulSoup(go_to_next_page(cat, page_no))
             products_list = soup.find(class_="products-list")
             for product in products_list.find_all(class_='item'):
