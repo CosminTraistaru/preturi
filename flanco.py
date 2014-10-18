@@ -18,6 +18,7 @@ url = "http://www.flanco.ro/"
 
 
 def get_soup(link):
+    time.sleep(DELAY)
     req = requests.get(link)
     return BeautifulSoup(req.text)
 
@@ -58,7 +59,15 @@ def get_number_of_pages(soup):
 
 def get_price(text):
     match = re.search(r'^\d+', str(text))
-    return match.group()
+    if match:
+        return int(match.group())
+    else:
+        return 'N/A'
+
+
+def get_name(text):
+    working_text = str(text)
+    return working_text.replace(',', '')
 
 
 def get_availability(code):
@@ -67,10 +76,11 @@ def get_availability(code):
 
 
 def get_info_from_product(product):
-    name = product.find('a')['title']
-    link = product.find('a')['href']
-    image = product.find('img')['href']
+    name = get_name(product.find('a')['title'])
+    link = str(product.find('a')['href'])
+    image = str(product.find('img')['data-src'])
     price = get_price(product.find(class_='price').text)
+    print price
     availability = get_availability(product.find(class_='in-stock').text)
     print name, price, availability, link, image
     return name, price, availability, link, image
