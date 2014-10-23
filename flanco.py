@@ -10,7 +10,7 @@ import unicodedata
 from bs4 import BeautifulSoup
 
 
-DELAY = 0
+DELAY = 8
 categories = []
 temp_subcategories = []
 subcategories = []
