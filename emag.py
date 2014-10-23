@@ -30,7 +30,7 @@ WANTED = ["laptopuri",
           "obiective",
           "blitzuri",
           "dsrl",
-          "camere-video",
+          "camere",
           "console-",
           "genti",
           "mouse",
@@ -48,7 +48,13 @@ WANTED = ["laptopuri",
           "spalat",
           "fiare",
           "frigorifice",
-          "anvelope-auto"
+          "anvelope-auto",
+          "receiver",
+          "electrocasnice",
+          "incorporabile",
+          "cuptoare",
+          "conditionat",
+          "espressor",
           ]
 
 
@@ -179,5 +185,5 @@ def run():
 
 
 if __name__ == '__main__':
-    # do_stuff()
+    #do_stuff()
     run()
