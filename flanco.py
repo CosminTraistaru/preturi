@@ -10,7 +10,7 @@ import unicodedata
 from bs4 import BeautifulSoup
 
 
-DELAY = 10
+DELAY = 0
 categories = []
 temp_subcategories = []
 subcategories = []
@@ -96,12 +96,25 @@ def _get_availability(code):
     return av
 
 
+def found_an_error(err):
+    error_file = open("error.log", 'a')
+    error_file.write(err)
+    error_file.close()
+
+
 def _get_info_from_product(product):
     name = _get_name(product.find(class_='product-name').text)
     link = str(product.find('a')['href'])
     image = str(product.find(class_='lazy')['data-src'])
-    price = _get_price(product.find(class_='price').text)
-    availability = _get_availability(product.find(class_='in-stock').text)
+    if product.find(class_='price'):
+        price = _get_price(product.find(class_='price').text)
+    else:
+        found_an_error("The product {0}, has no price!!! Set to 0".format(name))
+        price = 0
+    if product.find(class_='availability'):
+        availability = _get_availability(product.find(class_='availability').text)
+    else:
+        availability = "N/A"
     return name, price, availability, link, image
 
 
