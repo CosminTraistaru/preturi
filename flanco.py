@@ -10,7 +10,7 @@ import unicodedata
 from bs4 import BeautifulSoup
 
 
-DELAY = 10
+DELAY = 0
 categories = []
 temp_subcategories = []
 subcategories = []
@@ -119,6 +119,8 @@ def get_products():
             addr = "{0}?p={1}".format(s, page_no)
             soup = get_soup(addr)
             product_list = soup.find(class_='products-list')
+            if not product_list:
+                continue
             products = product_list.find_all(class_='item')
             entries = map(_get_info_from_product, products)
             flanco_db.writerows(entries)
