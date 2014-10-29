@@ -16,7 +16,7 @@ nr_added_prices = 0
 current_nr_products = 0
 current_nr_prices = 0
 start_timestamp = None
-current_timestamp = None
+csv_start_timestamp = None
 
 
 def connect_db(config):
@@ -58,24 +58,24 @@ def process_csv(file_name):
             product_price = row[1]
             product_link = row[3]
             product_img = row[4]
-            product_hash = hashlib.md5(product_name+product_link+product_img).hexdigest()
-            id_produs = get_product_id(product_hash)
+            product_hash = hashlib.sha1(product_name+product_link).hexdigest()
+            product_id = get_product_id(product_hash)
 
-            if id_produs == 0:
+            if product_id == 0:
                 cursor = connection.cursor()
                 query = ("INSERT INTO `produs` "
                          "(`idProdus`, `idCategorie`, `idMagazin`, `NumeProdus`, `LinkProdus`, `PozaProdus`, `hash`) "
                          "VALUES (NULL, '0', '" + str(shop_id) + "', '" + product_name + "', '" + product_link + "', '" +
                          product_img + "', '" + product_hash + "')")
                 cursor.execute(query)
-                id_produs = cursor.lastrowid
+                product_id = cursor.lastrowid
                 nr_added_products += 1
                 insert_product_price = True
                 cursor.close()
             else:
                 if False:
                     cursor = connection.cursor()
-                    query = ("SELECT * FROM `produs` WHERE `idProdus`=" + str(id_produs))
+                    query = ("SELECT * FROM `produs` WHERE `idProdus`=" + str(product_id))
                     cursor.execute(query)
                     result = cursor.fetchall()
                     print "In baza de date\t: "+ result[0][3] + "\t" + result[0][4] + "\t" + result[0][5]
@@ -83,15 +83,16 @@ def process_csv(file_name):
                     cursor.close()
 
                 cursor = connection.cursor()
-                query = ("SELECT Data FROM `pret` "
+                query = ("SELECT * FROM `pret` "
                          "INNER JOIN `produs` ON `pret`.`idProdus` = `produs`.`idProdus` "
-                         "WHERE `produs`.`idProdus`=" + str(id_produs) + " "
-                         "ORDER BY `pret`.`Data` DESC LIMIT 1")
+                         "WHERE `produs`.`idProdus`=" + str(product_id) + " "
+                         " AND `pret`.`Data` = '" + scrape_date + "' ")
                 cursor.execute(query)
-                result = cursor.fetchall()
 
-                if (result[0][0].strftime("%Y-%m-%d") != scrape_date) or (not result):
+                if not cursor.with_rows:
                     insert_product_price = True
+                else:
+                    cursor.fetchall()
 
                 cursor.close()
 
@@ -99,7 +100,7 @@ def process_csv(file_name):
                 cursor = connection.cursor()
                 query = ("INSERT INTO `pret` "
                          "(`idPret`, `idProdus`, `Pret`, `Data`) "
-                         "VALUES (NULL, '"+str(id_produs)+"', '"+str(product_price)+"', '"+scrape_date+"')")
+                         "VALUES (NULL, '"+str(product_id)+"', '"+str(product_price)+"', '"+scrape_date+"')")
                 cursor.execute(query)
                 nr_added_prices += 1
                 cursor.close()
@@ -111,13 +112,15 @@ def get_product_id(product_hash):
     query = "SELECT produs.idProdus FROM produs WHERE produs.hash = '"+product_hash+"' "
 
     cursor.execute(query)
-    result = cursor.fetchall()
-    cursor.close()
 
-    if (result is None) or (not result):
+    result = cursor.fetchall()
+
+    if not result:
         product_id = 0
     else:
         product_id = result[0][0]
+
+    cursor.close()
 
     return product_id
 
@@ -151,7 +154,7 @@ def traverse_folder(path):
     global current_nr_products
     global current_nr_prices
     global start_timestamp
-    global current_timestamp
+    global csv_start_timestamp
 
     for entry in os.listdir(path):
         if os.path.isdir(path+"/"+entry):
@@ -164,16 +167,17 @@ def traverse_folder(path):
                 current_nr_prices = nr_added_prices - current_nr_prices
                 print "Added prices for " + str(current_nr_prices) + " products"
             if start_timestamp is not None:
-                current_timestamp = datetime.datetime.now()
-                print "Processing time: " + str(current_timestamp - start_timestamp)
+                print "Processing time: " + str(datetime.datetime.now() - csv_start_timestamp)
             else:
                 start_timestamp = datetime.datetime.now()
             print "Processing :" + path+"/"+entry
+            csv_start_timestamp = datetime.datetime.now()
             process_csv(path+"/"+entry)
+
 
 connect_db(mysql_conf.mysqlconfig)
 
-traverse_folder("csv")
+traverse_folder("csv/pcfun")
 
 disconnect_db()
 
