@@ -15,6 +15,7 @@ CATEGORIES = []
 SUBCATEGORIES = []
 # CE_VREM = []
 DELAY = 10
+DATE = time.strftime("%d-%m-%y")
 
 
 def do_stuff():
@@ -60,8 +61,7 @@ def get_prices(url="http://www.pcfun.ro/ultrabook/"):
     soup = BeautifulSoup(page.text)
     number_of_pages = get_number_of_pages(soup.find(class_='x-pages-more').
         find_previous('a')['href'])
-    with open('csv/pcfun/pcfun-{0}.csv'.format(
-            time.strftime("%d-%m-%y")), 'ab') as csv_file:
+    with open('csv/pcfun/pcfun-{0}.csv'.format(DATE), 'ab') as csv_file:
         pcfun_db = csv.writer(csv_file)
         while current_page <= number_of_pages:
             soup = BeautifulSoup(page.text)
@@ -89,12 +89,12 @@ def get_prices(url="http://www.pcfun.ro/ultrabook/"):
 
 
 def run():
-    logs = open('logs/pcfun-{0}.log'.format(time.strftime("%d-%m-%y")), 'a')
+    logs = open('logs/pcfun-{0}.log'.format(DATE), 'a')
     logs.close()
 
     for sub in SUBCATEGORIES:
         go = True
-        with open('logs/pcfun-{0}.log'.format(time.strftime("%d-%m-%y")), 'r') as logs:
+        with open('logs/pcfun-{0}.log'.format(DATE), 'r') as logs:
             for log in logs:
                 if sub in log:
                     go = False
@@ -104,8 +104,7 @@ def run():
                 go = False
         except requests.ConnectionError as e:
             error_file = open("error.log", 'a')
-            error_file.write("{0} {1} {2}\n".format(time.strftime("%d-%m-%y %H-%M"),
-                                                    e, sub))
+            error_file.write("{0} {1} {2}\n".format(DATE, e, sub))
             error_file.close()
             go = False
             pass
@@ -117,18 +116,16 @@ def run():
             get_prices(sub)
         except TypeError as e:
             error_file = open("error.log", 'a')
-            error_file.write("{0} {1} {2}\n".format(time.strftime("%d-%m-%y %H-%M"),
-                                                    e, sub))
+            error_file.write("{0} {1} {2}\n".format(DATE, e, sub))
             error_file.close()
             pass
         except Exception as e:
             error_file = open("error.log", 'a')
-            error_file.write("{0} {1} {2}\n".format(time.strftime("%d-%m-%y %H-%M"),
-                                                    e, sub))
+            error_file.write("{0} {1} {2}\n".format(DATE, e, sub))
             error_file.close()
             pass
 
-        logs = open('logs/pcfun-{0}.log'.format(time.strftime("%d-%m-%y")), 'a')
+        logs = open('logs/pcfun-{0}.log'.format(DATE), 'a')
         logs.write("{0}\n".format(sub))
         logs.close()
 
