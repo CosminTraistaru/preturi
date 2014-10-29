@@ -125,12 +125,16 @@ def get_products():
     get_subcategories()
     for s in subcategories:
         soup = get_soup(s)
+        if not soup:
+            continue
         if not soup.find(class_='amount'):  # if not landing subcategory page
             continue
         number_of_pages = _get_number_of_pages(soup)
         for page_no in xrange(1, number_of_pages+1):
             addr = "{0}?p={1}".format(s, page_no)
             soup = get_soup(addr)
+            if not soup:
+                continue
             product_list = soup.find(class_='products-list')
             if not product_list:
                 continue
