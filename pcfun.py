@@ -105,7 +105,7 @@ def run():
         except requests.ConnectionError as e:
             error_file = open("error.log", 'a')
             error_file.write("{0} {1} {2}\n".format(time.strftime("%d-%m-%y %H-%M"),
-                                                    e.message, sub))
+                                                    e, sub))
             error_file.close()
             go = False
             pass
@@ -118,13 +118,13 @@ def run():
         except TypeError as e:
             error_file = open("error.log", 'a')
             error_file.write("{0} {1} {2}\n".format(time.strftime("%d-%m-%y %H-%M"),
-                                                    e.message, sub))
+                                                    e, sub))
             error_file.close()
             pass
         except Exception as e:
             error_file = open("error.log", 'a')
             error_file.write("{0} {1} {2}\n".format(time.strftime("%d-%m-%y %H-%M"),
-                                                    e.message, sub))
+                                                    e, sub))
             error_file.close()
             pass
 
