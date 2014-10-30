@@ -177,7 +177,7 @@ def traverse_folder(path):
 
 connect_db(mysql_conf.mysqlconfig)
 
-traverse_folder("csv/pcfun")
+traverse_folder("csv")
 
 disconnect_db()
 
