@@ -15,6 +15,8 @@ categories = []
 temp_subcategories = []
 subcategories = []
 url = "http://www.flanco.ro/"
+DATE = time.strftime("%d-%m-%y")
+LONG_DATE = time.strftime("%d-%m-%y %H-%M")
 
 
 def get_soup(link):
@@ -30,17 +32,14 @@ def get_soup(link):
         return BeautifulSoup(req.text)
     except requests.Timeout:
         print "!!! caca !!!- {0}".format(link)
-        error_file.write("{0} - Timeout exception - {1}\n".
-                         format(time.strftime("%d-%m-%y %H-%M"), link))
+        error_file.write("{0} - Timeout exception - {1}\n".format(LONG_DATE, link))
         pass
     except NameError as e:
         error_file.write("{0} - Page was not loaded exception - {1} - {2}\n".
-                         format(time.strftime("%d-%m-%y %H-%M"),
-                                e, link))
+                         format(LONG_DATE, e, link))
         pass
     except Exception as e:
-        error_file.write("{0} - Some error - {1} - {2}\n".format(
-            time.strftime("%d-%m-%y %H-%M"), e, link))
+        error_file.write("{0} - Some error - {1} - {2}\n".format(LONG_DATE, e, link))
     error_file.close()
     return None
 
@@ -119,18 +118,21 @@ def _get_info_from_product(product):
 
 
 def get_products():
-    csv_file = open('csv/flanco/flanco-{0}.csv'.format(
-        time.strftime("%d-%m-%y")), 'ab')
+    csv_file = open('csv/flanco/flanco-{0}.csv'.format(DATE), 'ab')
     flanco_db = csv.writer(csv_file)
     get_subcategories()
     for s in subcategories:
         soup = get_soup(s)
+        if not soup:
+            continue
         if not soup.find(class_='amount'):  # if not landing subcategory page
             continue
         number_of_pages = _get_number_of_pages(soup)
         for page_no in xrange(1, number_of_pages+1):
             addr = "{0}?p={1}".format(s, page_no)
             soup = get_soup(addr)
+            if not soup:
+                continue
             product_list = soup.find(class_='products-list')
             if not product_list:
                 continue
