@@ -48,7 +48,7 @@ def get_soup(link):
 
 def _get_name(soup):
     text = soup.find(attrs={"id": "image"})['alt']
-    return text.replace(',', '').replace('#', '')
+    return str(text.replace(',', '').replace('#', ''))
 
 
 def _get_price(soup):
@@ -111,7 +111,7 @@ def get_product_info():
         price = _get_price(product)
         availability = _get_stoc(product)
         image = _get_image(product)
-        entry = (name, price, availability, link, image)
+        entry = (name, price, availability, str(link), image)
         print entry
         yellowstore.writerow(entry)
     csv_file.close()
