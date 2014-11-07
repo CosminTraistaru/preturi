@@ -128,6 +128,5 @@ def run():
         logs.close()
 
 
-# do_stuff()
-# run()
-get_prices()
+do_stuff()
+run()
