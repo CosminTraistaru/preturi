@@ -158,7 +158,6 @@ def run():
     for cat in logs:
         visited_categories.append(cat)
     list_of_categories = open("subcategories-emag.txt", 'r')
-    print WANTED
     for category in list_of_categories:
         go = False
         for interest in WANTED:
@@ -174,7 +173,7 @@ def run():
             print "This category already read"
             continue
         else:
-            response = requests.head(category[:-1])
+            response = requests.get(category)
             if not response.ok:
                 print "Link not available"
                 continue
@@ -185,5 +184,5 @@ def run():
 
 
 if __name__ == '__main__':
-    #do_stuff()
-    run()
+    do_stuff()
+    # run()
