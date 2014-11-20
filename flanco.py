@@ -58,6 +58,8 @@ def get_subcategories():
             temp_subcategories.append(subcat.find('a')['href'])
         for s in temp_subcategories:
             soup = get_soup(s)
+            if not soup:
+                continue
             if soup.find(attrs={"id": "narrow-by-list2"}):
                 menu = soup.find(attrs={"id": "narrow-by-list2"}).find_all('li')
                 for subcat in menu:
