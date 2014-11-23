@@ -85,7 +85,7 @@ def get_product_id(product_hash, connection):
 
     result = cursor.fetchall()
 
-    if not result:
+    if len(result) == 0:
         product_id = 0
     else:
         product_id = result[0][0]
@@ -100,9 +100,9 @@ def get_shop_id(shop_name, connection):
 
     cursor.execute("SELECT magazin.idMagazin FROM magazin  WHERE magazin.Nume LIKE %s", (shop_name, ))
     result = cursor.fetchall()
-    cursor.close()
 
-    if result is None:
+    cursor.close()
+    if len(result) == 0:
         cursor = connection.cursor()
 
         cursor.execute("INSERT INTO `magazin` (`idMagazin`, `Nume`, `LinkMagazin`, `Descriere`) VALUES "
@@ -110,6 +110,7 @@ def get_shop_id(shop_name, connection):
 
         shop_id = cursor.lastrowid
     else:
-        shop_id = result[0]
+
+        shop_id = result[0][0]
 
     return shop_id
