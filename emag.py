@@ -12,6 +12,7 @@ from selenium import webdriver
 
 import base
 
+import database
 
 DELAY = 10
 categories = []
@@ -57,6 +58,9 @@ WANTED = ["laptopuri",
           "espressor",
           ]
 
+db_connection = database.connect_db()
+scrape_date = time.strftime("%Y-%m-%d")
+shop_id = database.get_shop_id('emag', db_connection)
 
 def do_stuff():
     """
@@ -111,6 +115,10 @@ def write_to_log(message):
 
 
 def get_prices(url):
+    global db_connection
+    global shop_id
+    global scrape_date
+
     current_page = 0
     page = requests.get(url)
     soup = BeautifulSoup(page.text)
@@ -131,6 +139,9 @@ def get_prices(url):
                     product.find_next("a")['href'])
                 image = product.find_next('img')['src']
                 entry = (name, price, availability, link, image)
+                produs = (name, price, link, image)
+
+                database.insert_product(produs, shop_id, scrape_date, db_connection)
                 emag_db.writerow(entry)
             current_page += 1
             time.sleep(DELAY)
@@ -186,3 +197,4 @@ def run():
 if __name__ == '__main__':
     # do_stuff()
     run()
+    database.disconnect_db(db_connection)

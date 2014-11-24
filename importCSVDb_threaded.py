@@ -71,11 +71,8 @@ def process_csv(file_name, connection):
 
     shop_id = database.get_shop_id(match.group(1), connection)
 
-    #try:
     date = datetime.datetime.strptime(match.group(4) + match.group(3) + match.group(2), "%y%m%d")
     scrape_date = date.strftime("%Y-%m-%d")
-    #except:
-    #    print "Error on file %s. Matches : %s %s %s. Resulting string: %s" % (file_name, match.group(4), match.group(3), match.group(2), match.group(4) + match.group(3) + match.group(2))
 
     with open(file_name, 'r') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
@@ -94,7 +91,7 @@ def process_csv(file_name, connection):
     return result
 
 #workaround for strptime to solve thread safe behaviour
-date = datetime.datetime.strptime(datetime.datetime.today().strftime("%y%m%d"), "%y%m%d")
+boggus_date = datetime.datetime.strptime(datetime.datetime.today().strftime("%y%m%d"), "%y%m%d")
 
 # Create new threads
 for tNumber in range(0, threadNumber):

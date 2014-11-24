@@ -11,12 +11,17 @@ from bs4 import BeautifulSoup
 
 import base
 
+import database
+
 CATEGORIES = []
 SUBCATEGORIES = []
 # CE_VREM = []
 DELAY = 10
 DATE = time.strftime("%d-%m-%y")
 
+db_connection = database.connect_db()
+scrape_date = time.strftime("%Y-%m-%d")
+shop_id = database.get_shop_id('pcfun', db_connection)
 
 def do_stuff():
     """
@@ -56,6 +61,10 @@ def get_number_of_pages(text):
 
 
 def get_prices(url="http://www.pcfun.ro/ultrabook/"):
+    global db_connection
+    global shop_id
+    global scrape_date
+
     page = requests.get(url)
     current_page = 1
     soup = BeautifulSoup(page.text)
@@ -73,6 +82,8 @@ def get_prices(url="http://www.pcfun.ro/ultrabook/"):
                 availability = str(product.find_next('strong').text)
                 price = get_price(str(product.find_next(class_='price_tag').text))
                 entry = (name, price, availability, link, imagine)
+                produs = (name, price, link, imagine)
+                database.insert_product(produs, shop_id, scrape_date, db_connection)
                 pcfun_db.writerow(entry)
             current_page += 1
             page_url = "{0}pagina{1}/".format(url, current_page)
@@ -132,3 +143,4 @@ def run():
 
 do_stuff()
 run()
+database.disconnect_db(db_connection)

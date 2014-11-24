@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup
 
 import base
 
+import database
 
 CATEGORIES = []
 SUBCATEGORIES = []
@@ -33,6 +34,9 @@ CE_VREM = ["PORTABILE",
 DELAY = 10
 SITE_URL = "http://www.evomag.ro"
 
+db_connection = database.connect_db()
+scrape_date = time.strftime("%Y-%m-%d")
+shop_id = database.get_shop_id('evomag', db_connection)
 
 def do_stuff():
     """
@@ -98,6 +102,10 @@ def get_stoc(text):
 
 
 def get_prices(url):
+    global db_connection
+    global scrape_date
+    global shop_id
+
     page = requests.get(url)
     current_page = 1
     soup = BeautifulSoup(page.text)
@@ -125,6 +133,8 @@ def get_prices(url):
                                         (class_='stoc_produs').
                                         find_next('span').text)
                 entry = (name, price, availability, link, imagine)
+                produs = (name, price, link, imagine)
+                database.insert_product(produs, shop_id, scrape_date, db_connection)
                 evomag_db.writerow(entry)
             current_page += 1
             page_url = "{0}{1}{2}".format(url, "Filtru/Pagina:", current_page)
@@ -192,5 +202,5 @@ def run():
 
 # do_stuff()
 run()
-
+database.disconnect_db(db_connection)
 

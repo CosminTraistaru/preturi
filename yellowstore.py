@@ -9,6 +9,12 @@ import unicodedata
 
 from bs4 import BeautifulSoup
 
+import database
+
+db_connection = database.connect_db()
+scrape_date = time.strftime("%Y-%m-%d")
+shop_id = database.get_shop_id('yellowstore', db_connection)
+
 DELAY = 10
 categories = []
 subcategories = []
@@ -101,6 +107,9 @@ def get_links_for_products():
 
 
 def get_product_info():
+    global db_connection
+    global scrape_date
+    global shop_id
     csv_file = open('csv/yellowstore/yellowstore-{0}.csv'.format(
         time.strftime(DATE)), 'ab')
     yellowstore = csv.writer(csv_file)
@@ -112,6 +121,9 @@ def get_product_info():
         availability = _get_stoc(product)
         image = _get_image(product)
         entry = (name, price, availability, str(link), image)
+        produs = (name, price, link, image)
+        database.insert_product(produs, shop_id, scrape_date, db_connection)
+
         print entry
         yellowstore.writerow(entry)
     csv_file.close()
@@ -120,3 +132,4 @@ def get_product_info():
 get_subcats()
 get_links_for_products()
 get_product_info()
+database.disconnect_db(db_connection)

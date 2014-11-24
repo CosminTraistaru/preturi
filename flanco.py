@@ -9,6 +9,11 @@ import unicodedata
 
 from bs4 import BeautifulSoup
 
+import database
+
+db_connection = database.connect_db()
+scrape_date = time.strftime("%Y-%m-%d")
+shop_id = database.get_shop_id('flanco', db_connection)
 
 DELAY = 8
 categories = []
@@ -120,6 +125,10 @@ def _get_info_from_product(product):
 
 
 def get_products():
+    global db_connection
+    global scrape_date
+    global shop_id
+
     csv_file = open('csv/flanco/flanco-{0}.csv'.format(DATE), 'ab')
     flanco_db = csv.writer(csv_file)
     get_subcategories()
@@ -140,8 +149,13 @@ def get_products():
                 continue
             products = product_list.find_all(class_='item')
             entries = map(_get_info_from_product, products)
+            for entry in entries:
+                produs = (entry[0], entry[1], entry[3], entry[4])
+                database.insert_product(produs, shop_id, scrape_date, db_connection)
+
             flanco_db.writerows(entries)
     csv_file.close()
 
 
 get_products()
+database.disconnect_db(db_connection)

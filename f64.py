@@ -9,6 +9,12 @@ import unicodedata
 
 from bs4 import BeautifulSoup
 
+import database
+
+db_connection = database.connect_db()
+scrape_date = time.strftime("%Y-%m-%d")
+shop_id = database.get_shop_id('f64', db_connection)
+
 DELAY = 10
 categories = []
 subcategories = []
@@ -126,6 +132,10 @@ def _get_nr_of_pages(soup):
 
 
 def get_prices():
+    global db_connection
+    global scrape_date
+    global shop_id
+
     csv_file = open('csv/f64/f64-{0}.csv'.format(time.strftime("%d-%m-%y")), 'ab')
     f64_db = csv.writer(csv_file)
     get_subcategories()
@@ -141,13 +151,17 @@ def get_prices():
             if not list_of_products:
                 print subcategory
             entries = map(get_product_info, list_of_products)
+            for entry in entries:
+                produs = (entry[0], entry[1], entry[3], entry[4])
+                database.insert_product(produs, shop_id, scrape_date, db_connection)
+
             f64_db.writerows(entries)
             print page
     csv_file.close()
 
 
 get_prices()
-
+database.disconnect_db(db_connection)
 
 # !!! Not all the pages from f64 are visited, wierd page numbering system on
 # some pages
