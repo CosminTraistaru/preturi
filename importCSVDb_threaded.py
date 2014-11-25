@@ -17,6 +17,14 @@ queueLock = threading.Lock()
 workQueue = Queue.Queue(0)
 exitFlag = 0
 
+mysqlconfig = {
+      'user': 'preturi',
+      'password': 'preturi',
+      #'host': 'localhost',
+      'host': '192.168.122.120',
+      'database': 'preturi',
+    }
+
 
 class MyThread (threading.Thread):
     def __init__(self, threadid, threadname, queue):
@@ -32,7 +40,7 @@ class MyThread (threading.Thread):
 
 
 def process_data(threadname, queue):
-    connection = database.connect_db()
+    connection = database.connect_db(mysqlconfig)
     while not exitFlag:
         queueLock.acquire()
         if not workQueue.empty():
