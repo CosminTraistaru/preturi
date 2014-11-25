@@ -6,111 +6,99 @@ import mysql_conf
 import hashlib
 
 
-def connect_db(config=None):
+class Database:
     connection = None
-    if not config:
-        config = mysql_conf.mysqlconfig
-    try:
-        connection = mysql.connector.connect(**config)
-        print("Connected to database")
-        connection.autocommit = True
-    except mysql.connector.Error as error:
-        if error.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
-            print("Access denied to database")
-        elif error.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
-            print("Unable to select database")
-        else:
-            print(error)
-    return connection
+    cursor = None
 
+    def __init__(self, config=None):
+        self.connection = None
+        if not config:
+            config = mysql_conf.mysqlconfig
+        try:
+            self.connection = mysql.connector.connect(**config)
 
-def disconnect_db(connection):
-    connection.close()
-    print("Disconnected from db")
+            self.connection.autocommit = True
 
+            self.cursor = self.connection.cursor()
 
-def insert_product(product, shop_id, scrape_date, connection):
-    added_product = 0
-    added_price = 0
-    insert_product_price = False
+        except mysql.connector.Error as error:
+            if error.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
+                print("Access denied to database")
+            elif error.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
+                print("Unable to select database")
+            else:
+                print(error)
 
-    product_name = product[0]
-    product_price = product[1]
-    product_link = product[2]
-    product_img = product[3]
+    def __del__(self):
+        self.connection.close()
+        print("Disconnected from db")
 
-    product_hash = hashlib.sha1(product_name + product_link).hexdigest()
-    product_id = get_product_id(product_hash, connection)
+    def insert_product(self, product, shop_id, scrape_date):
+        added_product = 0
+        added_price = 0
+        insert_product_price = False
 
-    if product_id == 0:
-        cursor = connection.cursor()
-        cursor.execute("INSERT INTO `produs` (`idProdus`, `idCategorie`, `idMagazin`, `NumeProdus`, "
-                       "`LinkProdus`, `PozaProdus`, `hash`) VALUES (NULL, '0', %s, %s, %s, %s, %s)",
-                       (shop_id, product_name, product_link, product_img, product_hash))
-        product_id = cursor.lastrowid
+        product_name = product[0]
+        product_price = product[1]
+        product_link = product[2]
+        product_img = product[3]
 
-        added_product = 1
+        product_hash = hashlib.sha1(product_name + product_link).hexdigest()
+        product_id = self.get_product_id(product_hash)
 
-        insert_product_price = True
-        cursor.close()
-    else:
-        cursor = connection.cursor()
-        cursor.execute("SELECT * FROM `pret` "
-                       "WHERE `pret`.`idProdus`= %s AND `pret`.`Data` = %s", (product_id, scrape_date))
+        if product_id == 0:
 
-        if len(cursor.fetchall()) == 0:
+            self.cursor.execute("INSERT INTO `produs` (`idProdus`, `idCategorie`, `idMagazin`, `NumeProdus`, "
+                                "`LinkProdus`, `PozaProdus`, `hash`) VALUES (NULL, '0', %s, %s, %s, %s, %s)",
+                                (shop_id, product_name, product_link, product_img, product_hash))
+            product_id = self.cursor.lastrowid
+
+            added_product = 1
+
             insert_product_price = True
+        else:
+            self.cursor.execute("SELECT * FROM `pret` "
+                                "WHERE `pret`.`idProdus`= %s AND `pret`.`Data` = %s", (product_id, scrape_date))
 
-        cursor.close()
+            if len(self.cursor.fetchall()) == 0:
+                insert_product_price = True
 
-    if insert_product_price:
-        cursor = connection.cursor()
+        if insert_product_price:
+            self.cursor.execute("INSERT INTO `pret` (`idPret`, `idProdus`, `Pret`, `Data`) "
+                                "VALUES (NULL, %s, %s, %s)", (product_id, product_price, scrape_date))
 
-        cursor.execute("INSERT INTO `pret` (`idPret`, `idProdus`, `Pret`, `Data`) "
-                       "VALUES (NULL, %s, %s, %s)", (product_id, product_price, scrape_date))
+            added_price = 1
 
-        added_price = 1
+        result = (added_product, added_price)
 
-        cursor.close()
+        return result
 
-    result = (added_product, added_price)
+    def get_product_id(self, product_hash):
 
-    return result
+        self.cursor.execute("SELECT produs.idProdus FROM produs WHERE produs.hash = %s", (product_hash, ))
 
+        result = self.cursor.fetchall()
 
-def get_product_id(product_hash, connection):
-    cursor = connection.cursor()
+        if len(result) == 0:
+            product_id = 0
+        else:
+            product_id = result[0][0]
 
-    cursor.execute("SELECT produs.idProdus FROM produs WHERE produs.hash = %s", (product_hash, ))
+        return product_id
 
-    result = cursor.fetchall()
+    def get_shop_id(self, shop_name):
 
-    if len(result) == 0:
-        product_id = 0
-    else:
-        product_id = result[0][0]
+        self.cursor.execute("SELECT magazin.idMagazin FROM magazin  WHERE magazin.Nume LIKE %s", (shop_name, ))
+        result = self.cursor.fetchall()
 
-    cursor.close()
+        if len(result) == 0:
 
-    return product_id
+            self.cursor.execute("INSERT INTO `magazin` (`idMagazin`, `Nume`, `LinkMagazin`, `Descriere`) VALUES "
+                                "(NULL, %s, '', '');", (shop_name, ))
 
+            shop_id = self.cursor.lastrowid
+        else:
 
-def get_shop_id(shop_name, connection):
-    cursor = connection.cursor()
+            shop_id = result[0][0]
 
-    cursor.execute("SELECT magazin.idMagazin FROM magazin  WHERE magazin.Nume LIKE %s", (shop_name, ))
-    result = cursor.fetchall()
-
-    cursor.close()
-    if len(result) == 0:
-        cursor = connection.cursor()
-
-        cursor.execute("INSERT INTO `magazin` (`idMagazin`, `Nume`, `LinkMagazin`, `Descriere`) VALUES "
-                       "(NULL, %s, '', '');", (shop_name, ))
-
-        shop_id = cursor.lastrowid
-    else:
-
-        shop_id = result[0][0]
-
-    return shop_id
+        return shop_id

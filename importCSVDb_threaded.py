@@ -12,18 +12,18 @@ import database
 
 threads = []
 threadID = 1
-threadNumber = 5
+threadNumber = 16
 queueLock = threading.Lock()
 workQueue = Queue.Queue(0)
 exitFlag = 0
 
-mysqlconfig = {
-      'user': 'preturi',
-      'password': 'preturi',
-      #'host': 'localhost',
-      'host': '192.168.122.120',
-      'database': 'preturi',
-    }
+#mysqlconfig = {
+#    'user': 'preturi',
+#    'password': 'preturi',
+#    #'host': 'localhost',
+#    'host': '192.168.122.120',
+#    'database': 'preturi',
+#}
 
 
 class MyThread (threading.Thread):
@@ -40,7 +40,7 @@ class MyThread (threading.Thread):
 
 
 def process_data(threadname, queue):
-    connection = database.connect_db(mysqlconfig)
+    db = database.Database()
     while not exitFlag:
         queueLock.acquire()
         if not workQueue.empty():
@@ -48,7 +48,7 @@ def process_data(threadname, queue):
             queueLock.release()
             csv_start_timestamp = datetime.datetime.now()
             print "%s processing %s" % (threadname, data)
-            lines, products, prices = process_csv(data, connection)
+            lines, products, prices = process_csv(data, db)
             queueLock.acquire()
             print "%s: %s processed in %s" % (threadname, data, str(datetime.datetime.now() - csv_start_timestamp))
             print "%s: %s lines processed" % (threadname, str(lines))
@@ -58,7 +58,6 @@ def process_data(threadname, queue):
         else:
             queueLock.release()
         time.sleep(1)
-    database.disconnect_db(connection)
 
 
 def traverse_folder(path):
@@ -70,14 +69,14 @@ def traverse_folder(path):
                 workQueue.put(path + "/" + entry)
 
 
-def process_csv(file_name, connection):
+def process_csv(file_name, db):
     nr_processed_lines = 0
     nr_added_products = 0
     nr_added_prices = 0
 
     match = re.match("^.+/([a-zA-Z0-9]+)-([0-9]{2})-([0-9]{2})-([0-9]{2}).+", file_name)
 
-    shop_id = database.get_shop_id(match.group(1), connection)
+    shop_id = db.get_shop_id(match.group(1))
 
     date = datetime.datetime.strptime(match.group(4) + match.group(3) + match.group(2), "%y%m%d")
     scrape_date = date.strftime("%Y-%m-%d")
@@ -89,7 +88,7 @@ def process_csv(file_name, connection):
                 product = (row[0], row[1], row[3], row[4])
             except:
                 print "Error on row: %s" % row
-            (added_product, added_price) = database.insert_product(product, shop_id, scrape_date, connection)
+            (added_product, added_price) = db.insert_product(product, shop_id, scrape_date)
             nr_processed_lines += 1
             nr_added_products += added_product
             nr_added_prices += added_price
