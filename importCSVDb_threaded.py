@@ -12,7 +12,7 @@ import database
 
 threads = []
 threadID = 1
-threadNumber = 16
+threadNumber = 32
 queueLock = threading.Lock()
 workQueue = Queue.Queue(0)
 exitFlag = 0
