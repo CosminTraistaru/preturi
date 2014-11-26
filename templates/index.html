@@ -13,15 +13,13 @@
 {% block scripts%}
 {{super()}}
 <script>
-
-var chart = '{{ produs.json_response|tojson|safe }}';
-console.log(chart);
+var chart = {{ produs.preturi|tojson }};
 new Morris.Line({
   // ID of the element in which to draw the chart.
   element: 'myfirstchart',
   // Chart data records -- each entry in this array corresponds to a point on
   // the chart.
-  data: [{"day": "2014-10-28", "value": "5299"}, {"day": "2014-10-21", "value": "5299"}, {"day": "2014-10-03", "value": "5299"}, {"day": "2014-10-24", "value": "5299"}, {"day": "2014-10-09", "value": "5299"}, {"day": "2014-10-20", "value": "5299"}, {"day": "2014-10-22", "value": "5299"}, {"day": "2014-10-18", "value": "5299"}, {"day": "2014-10-13", "value": "5299"}, {"day": "2014-10-19", "value": "5299"}, {"day": "2014-10-29", "value": "5299"}, {"day": "2014-10-02", "value": "5699"}, {"day": "2014-10-23", "value": "5299"}, {"day": "2014-10-06", "value": "5299"}, {"day": "2014-10-05", "value": "5299"}, {"day": "2014-09-30", "value": "5699"}, {"day": "2014-10-16", "value": "5299"}, {"day": "2014-10-25", "value": "5299"}, {"day": "2014-10-17", "value": "5299"}, {"day": "2014-10-04", "value": "5299"}, {"day": "2014-10-15", "value": "5299"}, {"day": "2014-10-07", "value": "5299"}, {"day": "2014-10-14", "value": "5299"}, {"day": "2014-10-01", "value": "5699"}, {"day": "2014-10-26", "value": "5299"}, {"day": "2014-10-12", "value": "5299"}, {"day": "2014-10-10", "value": "5299"}, {"day": "2014-10-08", "value": "5299"}, {"day": "2014-10-27", "value": "5299"}],
+  data: chart,
   // The name of the data record attribute that contains x-values.
   xkey: 'day',
   // A list of names of data record attributes that contain y-values.

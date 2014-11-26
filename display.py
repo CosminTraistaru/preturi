@@ -1,34 +1,30 @@
-import simplejson as json
-
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
 from flask_appconfig import AppConfig
-from flask_wtf import Form
 from flask_bootstrap import WebCDN
 
 import database
 
 
-def retrieve_product():
-    connection = database.connect_db()
-    cursor = connection.cursor()
-    cursor.execute("SELECT * FROM produs WHERE produs.idProdus = 250;")
-    result = cursor.fetchall()
-    nume = result[0][3]
-    link = result[0][4]
-    image = result[0][5]
-    cursor.execute("SELECT * from pret WHERE pret.idProdus = 250;")
-    result = cursor.fetchall()
-    preturi = [({'day': str(pret[3]), 'value': str(int(pret[2]))})
-               for pret in result]
-    json_response = json.dumps(preturi)
-    database.disconnect_db(connection)
-    return preturi, nume, link, image, json_response
+class Produs():
+    def __init__(self):
+        pass
 
-
-class Produs(Form):
-    magazin = 'emag'
-    preturi, nume, link, image, json_response = retrieve_product()
+    @staticmethod
+    def get_product(product_id=250):
+            connection = database.connect_db()
+            cursor = connection.cursor()
+            cursor.execute("""SELECT * FROM produs WHERE produs.idProdus = %s;""", (product_id,))
+            result = cursor.fetchall()
+            nume = result[0][3]
+            link = result[0][4]
+            image = result[0][5]
+            cursor.execute("""SELECT * from pret WHERE pret.idProdus = %s;""", (product_id,))
+            result = cursor.fetchall()
+            preturi = [({'day': str(pret[3]), 'value': str(int(pret[2]))})
+                       for pret in result]
+            database.disconnect_db(connection)
+            return preturi, nume, link, image
 
 
 def create_app(configfile=None):
@@ -45,7 +41,12 @@ def create_app(configfile=None):
     @app.route('/')
     @app.route('/index')
     def index():
-        produs = Produs()
+        produs = {}
+        pr = Produs()
+        produs['preturi'], \
+        produs['nume'], \
+        produs['link'], \
+        produs['image'] = pr.get_product()
         return render_template('index.html', produs=produs)
 
     return app
