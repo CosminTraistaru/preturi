@@ -9,9 +9,7 @@ from flask_bootstrap import WebCDN
 import database
 
 
-class Produs(Form):
-    magazin = 'emag'
-    once = {}
+def retrieve_product():
     connection = database.connect_db()
     cursor = connection.cursor()
     cursor.execute("SELECT * FROM produs WHERE produs.idProdus = 250;")
@@ -21,10 +19,16 @@ class Produs(Form):
     image = result[0][5]
     cursor.execute("SELECT * from pret WHERE pret.idProdus = 250;")
     result = cursor.fetchall()
-    preturi = [({'year': str(pret[3]), 'value': str(int(pret[2]))})
+    preturi = [({'day': str(pret[3]), 'value': str(int(pret[2]))})
                for pret in result]
-    json_response = str(json.dumps(preturi))
+    json_response = json.dumps(preturi)
     database.disconnect_db(connection)
+    return preturi, nume, link, image, json_response
+
+
+class Produs(Form):
+    magazin = 'emag'
+    preturi, nume, link, image, json_response = retrieve_product()
 
 
 def create_app(configfile=None):
@@ -39,6 +43,7 @@ def create_app(configfile=None):
     )
 
     @app.route('/')
+    @app.route('/index')
     def index():
         produs = Produs()
         return render_template('index.html', produs=produs)
