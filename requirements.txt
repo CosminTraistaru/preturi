@@ -3,6 +3,7 @@ Flask
 flask-appconfig
 Flask-Bootstrap
 Flask-WTF
+Flask-SQLAlchemy
 itsdangerous
 Jinja2
 MarkupSafe
@@ -16,3 +17,4 @@ unicodescript
 Werkzeug
 wsgiref
 WTForms
+pymysql
