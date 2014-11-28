@@ -1,71 +1,78 @@
-import database
-from app import db
-
-
-class ProdusOld():
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def get_product(product_id=250):
-            connection = database.connect_db()
-            cursor = connection.cursor()
-            cursor.execute("""SELECT * FROM produs WHERE produs.idProdus = %s;""", (product_id,))
-            result = cursor.fetchall()
-            nume = result[0][3]
-            link = result[0][4]
-            image = result[0][5]
-            cursor.execute("""SELECT * from pret WHERE pret.idProdus = %s;""", (product_id,))
-            result = cursor.fetchall()
-            preturi = [({'day': str(pret[3]), 'value': str(int(pret[2]))})
-                       for pret in result]
-            database.disconnect_db(connection)
-            return preturi, nume, link, image
+from app import app, db
+import flask.ext.whooshalchemy
 
 
 class Categorie(db.Model):
     __tablename__ = 'categorie'
     idCategorie = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    NumeCategorie = db.Column(db.text)
+    NumeCategorie = db.Column(db.Text)
 
 
 class Magazin(db.Model):
     __tablename__ = 'magazin'
     idMagazin = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    Nume = db.Column(db.text)
-    LinkMagazin = db.Column(db.text)
-    Descriere = db.Column(db.text)
+    Nume = db.Column(db.Text)
+    LinkMagazin = db.Column(db.Text)
+    Descriere = db.Column(db.Text)
 
     def __repr__(self):
-        return "Magazin: {magazin} ".format(magazin=self.Nume)
+        return "{magazin} ".format(magazin=self.Nume.title())
 
 
 class Pret(db.Model):
     __tablename__ = 'pret'
     idPret = db.Column(db.Integer, autoincrement=True, primary_key=True)
     idProdus = db.Column(db.Integer, db.ForeignKey('produs.idProdus'))
-    NumeProdus = db.relationship('Produs', backref=db.backref('pret',
-                                                              lazy='dynamic'))
     Pret = db.Column(db.DECIMAL(10, 4))
     Data = db.Column(db.Date)
 
+    def __repr__(self):
+        return "{} {}".format(int(self.Pret), self.Data)
+
 
 class Produs(db.Model):
+    __searchable__ = ['NumeProdus']
     __tablename__ = 'produs'
-    idProdus = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    idCategorie = db.Column(db.Integer, db.ForeignKey('categorie.idCategorie'),
-                            default=0)
-    NumeCategorie = db.relationship('Categorie',
-                                    backref=db.backref('produs',
-                                                       lazy='dynamic'))
-    idMagazin = db.Column(db.Integer, db.ForeignKey('categorie.idMagazin'))
-    Nume = db.relationship('Magazin', backref=db.backref('produs',
-                                                         lazy='dynamic'))
-    NumeProdus = db.Column(db.text)
-    LinkProdus = db.Column(db.text)
-    PozaProdus = db.Column(db.text)
-    hash = db.Column(db.VARCHAR(40))
 
-    def __repr__(self):
+    idProdus = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    idCategorie = db.Column(db.Integer, default=0)
+    idMagazin = db.Column(db.Integer, db.ForeignKey('magazin.idMagazin'))
+    Magazin = db.relationship('Magazin', backref="produs")
+    NumeProdus = db.Column(db.Text)
+    LinkProdus = db.Column(db.Text)
+    PozaProdus = db.Column(db.Text)
+    hash = db.Column(db.VARCHAR(40))
+    Preturi = db.relationship('Pret', backref="produs", lazy='dynamic')
+
+    def __str__(self):
         return "Produs: {nume_produs} \nLink Produs: {link_produs}".\
             format(nume_produs=self.NumeProdus, link_produs=self.LinkProdus)
+
+    def preturi_dict(self):
+        return [
+            {'day': p.Data.strftime("%Y-%m-%d"),
+             'value': int(p.Pret)}
+            for p in self.Preturi.all()
+        ]
+
+# Produs.pu
+#
+# def rebuild_index(model=Produs):
+#     """Rebuild search index of Flask-SQLAlchemy model"""
+#     primary_field = model.pure_whoosh.primary_key_name
+#     searchables = model.__searchable__
+#     index_writer = flask.ext.whooshalchemy.whoosh_index(app, model)
+#
+#     # Fetch all data
+#     entries = model.query.all()
+#
+#     entry_count = 0
+#     with index_writer.writer() as writer:
+#         for entry in entries:
+#             index_attrs = {}
+#             for field in searchables:
+#                 index_attrs[field] = unicode(getattr(entry, field))
+#
+#             index_attrs[primary_field] = unicode(getattr(entry, primary_field))
+#             writer.update_document(**index_attrs)
+#             entry_count += 1

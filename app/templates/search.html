@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <h4 align="middle"><img src="{{ produs.image }}"></h4>
+  <h4>{{ produs.magazin }}</h4>
+  <h4>{{ produs.nume }}</h4>
+  <h4><a href="{{ produs.link }}">{{ produs.link }}</a></h4>
+  <div id="myfirstchart" style="height: 300px;"></div>
+</div>
+{% endblock %}
