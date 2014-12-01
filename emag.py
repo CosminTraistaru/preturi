@@ -58,9 +58,9 @@ WANTED = ["laptopuri",
           "espressor",
           ]
 
-db_connection = database.connect_db()
+db_connection = database.Database()
 scrape_date = time.strftime("%Y-%m-%d")
-shop_id = database.get_shop_id('emag', db_connection)
+shop_id = db_connection.get_shop_id('emag')
 
 def do_stuff():
     """
@@ -141,7 +141,7 @@ def get_prices(url):
                 entry = (name, price, availability, link, image)
                 produs = (name, price, link, image)
 
-                database.insert_product(produs, shop_id, scrape_date, db_connection)
+                db_connection.insert_product(produs, shop_id, scrape_date)
                 emag_db.writerow(entry)
             current_page += 1
             time.sleep(DELAY)
@@ -197,4 +197,5 @@ def run():
 if __name__ == '__main__':
     # do_stuff()
     run()
-    database.disconnect_db(db_connection)
+    db_connection.commit()
+

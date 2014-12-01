@@ -17,7 +17,7 @@ class Database:
         try:
             self.connection = mysql.connector.connect(**config)
 
-            self.connection.autocommit = True
+            self.connection.autocommit = False
 
             self.cursor = self.connection.cursor()
 
@@ -35,8 +35,6 @@ class Database:
 
     def insert_product(self, product, shop_id, scrape_date):
         added_product = 0
-        added_price = 0
-        insert_product_price = False
 
         product_name = product[0]
         product_price = product[1]
@@ -49,25 +47,17 @@ class Database:
         if product_id == 0:
 
             self.cursor.execute("INSERT INTO `produs` (`idProdus`, `idCategorie`, `idMagazin`, `NumeProdus`, "
-                                "`LinkProdus`, `PozaProdus`, `hash`) VALUES (NULL, '0', %s, %s, %s, %s, %s)",
-                                (shop_id, product_name, product_link, product_img, product_hash))
-            product_id = self.cursor.lastrowid
+                                "`LinkProdus`, `PozaProdus`) VALUES (%s, '0', %s, %s, %s, %s)",
+                                (product_hash, shop_id, product_name, product_link, product_img))
 
             added_product = 1
 
-            insert_product_price = True
-        else:
-            self.cursor.execute("SELECT * FROM `pret` "
-                                "WHERE `pret`.`idProdus`= %s AND `pret`.`Data` = %s", (product_id, scrape_date))
-
-            if len(self.cursor.fetchall()) == 0:
-                insert_product_price = True
-
-        if insert_product_price:
-            self.cursor.execute("INSERT INTO `pret` (`idPret`, `idProdus`, `Pret`, `Data`) "
-                                "VALUES (NULL, %s, %s, %s)", (product_id, product_price, scrape_date))
-
+        try:
+            self.cursor.execute("INSERT INTO `pret` (`idProdus`, `Pret`, `Data`) "
+                                "VALUES (%s, %s, %s)", (product_hash, product_price, scrape_date))
             added_price = 1
+        except mysql.connector.IntegrityError:
+            added_price = 0
 
         result = (added_product, added_price)
 
@@ -75,10 +65,9 @@ class Database:
 
     def get_product_id(self, product_hash):
 
-        self.cursor.execute("SELECT produs.idProdus FROM produs WHERE produs.hash = %s", (product_hash, ))
+        self.cursor.execute("SELECT EXISTS(SELECT 1 FROM produs WHERE produs.idProdus = %s)", (product_hash, ))
 
         result = self.cursor.fetchall()
-
         if len(result) == 0:
             product_id = 0
         else:
@@ -102,3 +91,6 @@ class Database:
             shop_id = result[0][0]
 
         return shop_id
+
+    def commit(self):
+        self.connection.commit();

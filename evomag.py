@@ -34,9 +34,10 @@ CE_VREM = ["PORTABILE",
 DELAY = 10
 SITE_URL = "http://www.evomag.ro"
 
-db_connection = database.connect_db()
+db_connection = database.Database()
 scrape_date = time.strftime("%Y-%m-%d")
-shop_id = database.get_shop_id('evomag', db_connection)
+shop_id = db_connection.get_shop_id('evomag')
+
 
 def do_stuff():
     """
@@ -134,7 +135,7 @@ def get_prices(url):
                                         find_next('span').text)
                 entry = (name, price, availability, link, imagine)
                 produs = (name, price, link, imagine)
-                database.insert_product(produs, shop_id, scrape_date, db_connection)
+                db_connection.insert_product(produs, shop_id, scrape_date)
                 evomag_db.writerow(entry)
             current_page += 1
             page_url = "{0}{1}{2}".format(url, "Filtru/Pagina:", current_page)
@@ -202,5 +203,6 @@ def run():
 
 # do_stuff()
 run()
-database.disconnect_db(db_connection)
+db_connection.commit()
+
 

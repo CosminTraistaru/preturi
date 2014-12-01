@@ -12,18 +12,11 @@ import database
 
 threads = []
 threadID = 1
-threadNumber = 32
+threadNumber = 1
 queueLock = threading.Lock()
 workQueue = Queue.Queue(0)
 exitFlag = 0
-
-#mysqlconfig = {
-#    'user': 'preturi',
-#    'password': 'preturi',
-#    #'host': 'localhost',
-#    'host': '192.168.122.120',
-#    'database': 'preturi',
-#}
+main_start_timestamp = datetime.datetime.now()
 
 
 class MyThread (threading.Thread):
@@ -93,6 +86,7 @@ def process_csv(file_name, db):
             nr_added_products += added_product
             nr_added_prices += added_price
 
+    db.commit()
     result = (nr_processed_lines, nr_added_products, nr_added_prices)
 
     return result
@@ -116,7 +110,7 @@ queueLock.release()
 while not workQueue.empty():
     itemsRemaining = workQueue.qsize()
     print "Main Thread - %s - Items remaining: %s" % (str(time.ctime(time.time())), itemsRemaining)
-    time.sleep(600)
+    time.sleep(10)
 
 # Notify threads it's time to exit
 exitFlag = 1
@@ -124,4 +118,6 @@ exitFlag = 1
 # Wait for all threads to complete
 for thread in threads:
     thread.join()
+
+print "Total runtime: %s" % str(datetime.datetime.now() - main_start_timestamp)
 print "Exiting Main Thread"

@@ -11,9 +11,9 @@ from bs4 import BeautifulSoup
 
 import database
 
-db_connection = database.connect_db()
+db_connection = database.Database()
 scrape_date = time.strftime("%Y-%m-%d")
-shop_id = database.get_shop_id('flanco', db_connection)
+shop_id = db_connection.get_shop_id('flanco')
 
 DELAY = 8
 categories = []
@@ -151,11 +151,11 @@ def get_products():
             entries = map(_get_info_from_product, products)
             for entry in entries:
                 produs = (entry[0], entry[1], entry[3], entry[4])
-                database.insert_product(produs, shop_id, scrape_date, db_connection)
+                db_connection.insert_product(produs, shop_id, scrape_date)
 
             flanco_db.writerows(entries)
     csv_file.close()
 
 
 get_products()
-database.disconnect_db(db_connection)
+db_connection.commit()
