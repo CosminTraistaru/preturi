@@ -22,6 +22,13 @@ DATE = time.strftime("%d-%m-%y")
 db_connection = database.connect_db()
 scrape_date = time.strftime("%Y-%m-%d")
 shop_id = database.get_shop_id('electrofun', db_connection)
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:20.0) Gecko/20100101 Firefox/20.0",
+    "Accept-Encoding": "gzip, deflate",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.5",
+    "Connection": "keep-alive"
+}
 
 
 def do_stuff():
@@ -29,7 +36,7 @@ def do_stuff():
     This method gets all the subcategories from the site, and saves them
     to a file.
     """
-    page = requests.get("http://www.electrofun.ro")
+    page = requests.get("http://www.electrofun.ro", headers=headers)
     soup = BeautifulSoup(page.text)
     for main_categ in soup.find_all(class_='main_categ'):
         SUBCATEGORIES.append(str(main_categ['href']))
@@ -66,7 +73,7 @@ def get_prices(url="http://www.electrofun.ro/aparate-pentru-bucatarie/masini-de-
     global scrape_date
     global shop_id
 
-    page = requests.get(url)
+    page = requests.get(url, headers=headers)
     current_page = 1
     soup = BeautifulSoup(page.text)
     if not soup.find(class_='x-pages'):
@@ -113,7 +120,7 @@ def run():
                 if sub in log:
                     go = False
         try:
-            if not requests.get(sub).ok:
+            if not requests.get(sub, headers=headers).ok:
                 time.sleep(DELAY)
                 go = False
         except requests.ConnectionError as e:
