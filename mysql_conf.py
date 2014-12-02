@@ -15,6 +15,6 @@ elif hostname == "scraperprod.olympus":
     mysqlconfig = {
         'user': 'preturi',
         'password': 'preturi',
-        'host': '192.168.1.145',
+        'host': '192.168.122.100',
         'database': 'preturi',
     }
