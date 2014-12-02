@@ -4,22 +4,37 @@ import mysql.connector
 from mysql.connector import errorcode
 import mysql_conf
 import hashlib
+import random
 
 
 class Database:
     connection = None
     cursor = None
+    table_suffix = ""
+    temporary_pret_table = ""
+    temporary_produs_table = ""
 
-    def __init__(self, config=None):
+    def __init__(self, autocommit=False, config=None):
         self.connection = None
         if not config:
             config = mysql_conf.mysqlconfig
         try:
             self.connection = mysql.connector.connect(**config)
 
-            self.connection.autocommit = False
-
             self.cursor = self.connection.cursor()
+
+            self.connection.autocommit = autocommit
+
+            if not autocommit:
+                self.table_suffix = hashlib.sha1(str(random.random() * 65000)).hexdigest()
+                self.temporary_pret_table = "pret_" + self.table_suffix
+                self.temporary_produs_table = "produs_" + self.table_suffix
+
+                query = "CREATE TEMPORARY TABLE `%s` LIKE `pret`" % self.temporary_pret_table
+                self.cursor.execute(query)
+
+                query = "CREATE TEMPORARY TABLE `%s` LIKE `produs`" % self.temporary_produs_table
+                self.cursor.execute(query)
 
         except mysql.connector.Error as error:
             if error.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
@@ -46,15 +61,16 @@ class Database:
 
         if product_id == 0:
 
-            self.cursor.execute("INSERT INTO `produs` (`idProdus`, `idCategorie`, `idMagazin`, `NumeProdus`, "
-                                "`LinkProdus`, `PozaProdus`) VALUES (%s, '0', %s, %s, %s, %s)",
-                                (product_hash, shop_id, product_name, product_link, product_img))
+            query = "INSERT INTO %s (`idProdus`, `idCategorie`, `idMagazin`, `NumeProdus`, `LinkProdus`, `PozaProdus`) " \
+                    "VALUES (%%s, '0', %%s, %%s, %%s, %%s)" % self.temporary_produs_table
+
+            self.cursor.execute(query, (product_hash, shop_id, product_name, product_link, product_img))
 
             added_product = 1
 
         try:
-            self.cursor.execute("INSERT INTO `pret` (`idProdus`, `Pret`, `Data`) "
-                                "VALUES (%s, %s, %s)", (product_hash, product_price, scrape_date))
+            query = "INSERT INTO %s (`idProdus`, `Pret`, `Data`) VALUES (%%s, %%s, %%s)" % self.temporary_pret_table
+            self.cursor.execute(query, (product_hash, product_price, scrape_date))
             added_price = 1
         except mysql.connector.IntegrityError:
             added_price = 0
@@ -65,7 +81,8 @@ class Database:
 
     def get_product_id(self, product_hash):
 
-        self.cursor.execute("SELECT EXISTS(SELECT 1 FROM produs WHERE produs.idProdus = %s)", (product_hash, ))
+        query = "SELECT EXISTS(SELECT 1 FROM `%s` WHERE `idProdus` = %%s)" % self.temporary_produs_table
+        self.cursor.execute(query, (product_hash, ))
 
         result = self.cursor.fetchall()
         if len(result) == 0:
@@ -87,10 +104,19 @@ class Database:
 
             shop_id = self.cursor.lastrowid
         else:
-
             shop_id = result[0][0]
 
         return shop_id
 
     def commit(self):
+
+        try:
+            query = "INSERT IGNORE INTO `produs` SELECT * FROM `%s`" % self.temporary_produs_table
+            self.cursor.execute(query)
+
+            query = "INSERT IGNORE INTO `pret` SELECT * FROM %s" % self.temporary_pret_table
+            self.cursor.execute(query)
+
+        except:
+            pass
         self.connection.commit();

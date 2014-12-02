@@ -72,9 +72,9 @@ def db():
     csv_file = open('csv/actioncamera/actioncamera-{0}.csv'.format(
         time.strftime("%d-%m-%y")), 'ab')
 
-    #db_connection = database.Database()
-    #shop_id = db_connection.get_shop_id('actioncamera')
-    #scrape_date = time.strftime("%Y-%m-%d")
+    db_connection = database.Database()
+    shop_id = db_connection.get_shop_id('actioncamera')
+    scrape_date = time.strftime("%Y-%m-%d")
 
     actioncamera_db = csv.writer(csv_file)
     for cat in categories:
@@ -91,7 +91,7 @@ def db():
             for product in products_list.find_all(class_='item'):
                 entry = get_product_info(product)
                 produs = (entry[0], entry[1], entry[3], entry[4])
-                #db_connection.insert_product(produs, shop_id, scrape_date)
+                db_connection.insert_product(produs, shop_id, scrape_date)
                 actioncamera_db.writerow(entry)
     csv_file.close()
 
