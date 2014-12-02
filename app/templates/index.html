@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+  <h4 align="middle"><img src="{{ produs.image }}"></h4>
+  <h4>{{ produs.magazin }}</h4>
+  <h4>{{ produs.nume }}</h4>
+  <h4><a href="{{ produs.link }}">{{ produs.link }}</a></h4>
+  <div id="myfirstchart" style="height: 300px;"></div>
+</div>
+{% endblock %}
+
+{% block scripts%}
+{{super()}}
+<script>
+var chart = {{ produs.preturi|tojson }};
+new Morris.Line({
+  // ID of the element in which to draw the chart.
+  element: 'myfirstchart',
+  // Chart data records -- each entry in this array corresponds to a point on
+  // the chart.
+  data: chart,
+  // The name of the data record attribute that contains x-values.
+  xkey: 'day',
+  // A list of names of data record attributes that contain y-values.
+  ykeys: ['value'],
+  // Labels for the ykeys -- will be displayed when you hover over the
+  // chart.
+  labels: ['Pret']
+});
+</script>
+{% endblock %}

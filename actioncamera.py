@@ -80,7 +80,10 @@ def db():
         time.sleep(DELAY)
         soup = BeautifulSoup(req.text)
         links_to_no_of_pages = soup.find(class_='pages')
-        number_of_pages = int(links_to_no_of_pages.find_all('a')[-2].text)
+        if not links_to_no_of_pages:
+            number_of_pages = 1
+        else:
+            number_of_pages = int(links_to_no_of_pages.find_all('a')[-2].text)
         print cat
         print number_of_pages
         for page_no in xrange(1, number_of_pages+1):
