@@ -18,3 +18,4 @@ Werkzeug
 wsgiref
 WTForms
 pymysql
+flask-whooshalchemy

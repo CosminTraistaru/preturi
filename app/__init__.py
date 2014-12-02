@@ -4,7 +4,6 @@ from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_appconfig import AppConfig
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext import whooshalchemy
 
 from app.config import SQLALCHEMY_DATABASE_URI, SECRET_KEY, WHOOSH_BASE
 
@@ -16,4 +15,5 @@ app.config['SECRET_KEY'] = SECRET_KEY
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 app.config['WHOOSH_BASE'] = WHOOSH_BASE
 db = SQLAlchemy(app)
+
 from app import views, models

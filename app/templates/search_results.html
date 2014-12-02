@@ -2,6 +2,6 @@
 {% block content %}
   <h1>Search results for "{{ query }}":</h1>
   {% for produs in results %}
-      <li>{% produs %}</li>
+      {% include 'produs.html' %}
   {% endfor %}
 {% endblock %}

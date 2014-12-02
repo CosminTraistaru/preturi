@@ -3,7 +3,8 @@ from forms import SearchForm
 from app import app, models
 from app.config import MAX_SEARCH_RESULTS
 
-@app.route('/<product_id>')
+
+
 @app.route('/produs/<product_id>')
 def produs(product_id):
     produs = {}
@@ -17,13 +18,19 @@ def produs(product_id):
                            title="Cand imi cumpar {produs} ?".format(
                                produs=pr.NumeProdus
                            ))
+
+
+@app.route('/<product_id>')
+def index():
+    return render_template('index.html', title="Home")
+
 @app.before_request
 def before_request():
     g.search_form = SearchForm()
 
-@app.route('/search', methods=['POST'])
+
+@app.route('/search', methods=['POST', 'GET'], )
 def search():
-    # results = models.Produs.query.whoosh_search("Laptop Apple MacBook Pro 13")
     if not g.search_form.validate_on_submit():
         return redirect(url_for('index'))
     return redirect(url_for('search_results', query=g.search_form.search.data))
@@ -34,7 +41,9 @@ def search_results(query):
     results = models.Produs.query.whoosh_search(query, MAX_SEARCH_RESULTS).all()
     return render_template('search_results.html',
                            query=query,
-                           results=results)
+                           results=results,
+                           title="Rezultate cautare '{termen}'".format(
+                               termen=query))
 
 
 @app.errorhandler(404)

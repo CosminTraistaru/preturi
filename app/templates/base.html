@@ -38,7 +38,8 @@
         <li><a href="#">Cauta</a></li>
         <li><a href="#">Something</a></li>
       </ul>
-        <form class="navbar-form" role="search">
+        <form class="navbar-form" role="search" action="{{ url_for('search') }}"
+              method="post" name="search">>
         <div class="input-group">
             {{ g.search_form.hidden_tag() }}
             <input type="text" class="form-control" placeholder="Search"
