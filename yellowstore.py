@@ -11,9 +11,9 @@ from bs4 import BeautifulSoup
 
 import database
 
-db_connection = database.connect_db()
+db_connection = database.Database()
 scrape_date = time.strftime("%Y-%m-%d")
-shop_id = database.get_shop_id('yellowstore', db_connection)
+shop_id = db_connection.get_shop_id('yellowstore')
 
 DELAY = 10
 categories = []
@@ -122,7 +122,7 @@ def get_product_info():
         image = _get_image(product)
         entry = (name, price, availability, str(link), image)
         produs = (name, price, link, image)
-        database.insert_product(produs, shop_id, scrape_date, db_connection)
+        db_connection.insert_product(produs, shop_id, scrape_date)
 
         print entry
         yellowstore.writerow(entry)
@@ -132,4 +132,5 @@ def get_product_info():
 get_subcats()
 get_links_for_products()
 get_product_info()
-database.disconnect_db(db_connection)
+
+db_connection.commit()

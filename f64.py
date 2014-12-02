@@ -11,9 +11,9 @@ from bs4 import BeautifulSoup
 
 import database
 
-db_connection = database.connect_db()
+db_connection = database.Database()
 scrape_date = time.strftime("%Y-%m-%d")
-shop_id = database.get_shop_id('f64', db_connection)
+shop_id = db_connection.get_shop_id('f64')
 
 DELAY = 10
 categories = []
@@ -153,7 +153,7 @@ def get_prices():
             entries = map(get_product_info, list_of_products)
             for entry in entries:
                 produs = (entry[0], entry[1], entry[3], entry[4])
-                database.insert_product(produs, shop_id, scrape_date, db_connection)
+                db_connection.insert_product(produs, shop_id, scrape_date)
 
             f64_db.writerows(entries)
             print page
@@ -161,7 +161,8 @@ def get_prices():
 
 
 get_prices()
-database.disconnect_db(db_connection)
+db_connection.commit()
+
 
 # !!! Not all the pages from f64 are visited, wierd page numbering system on
 # some pages

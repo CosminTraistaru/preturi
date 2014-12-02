@@ -19,9 +19,9 @@ SUBCATEGORIES = []
 DELAY = 10
 DATE = time.strftime("%d-%m-%y")
 
-db_connection = database.connect_db()
+db_connection = database.Database()
 scrape_date = time.strftime("%Y-%m-%d")
-shop_id = database.get_shop_id('pcfun', db_connection)
+shop_id = db_connection.get_shop_id('pcfun')
 
 def do_stuff():
     """
@@ -83,7 +83,7 @@ def get_prices(url="http://www.pcfun.ro/ultrabook/"):
                 price = get_price(str(product.find_next(class_='price_tag').text))
                 entry = (name, price, availability, link, imagine)
                 produs = (name, price, link, imagine)
-                database.insert_product(produs, shop_id, scrape_date, db_connection)
+                db_connection.insert_product(produs, shop_id, scrape_date)
                 pcfun_db.writerow(entry)
             current_page += 1
             page_url = "{0}pagina{1}/".format(url, current_page)
@@ -143,4 +143,5 @@ def run():
 
 do_stuff()
 run()
-database.disconnect_db(db_connection)
+db_connection.commit()
+
