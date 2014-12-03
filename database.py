@@ -94,7 +94,6 @@ class Database:
 
         return result
 
-
     def get_product_id(self, product_hash):
         query = "SELECT EXISTS(SELECT 1 FROM `%s` WHERE `idProdus` = %%s)" % self.temporary_produs_table
         self.cursor.execute(query, (product_hash, ))
@@ -106,7 +105,6 @@ class Database:
             product_id = result[0][0]
 
         return product_id
-
 
     def get_shop_id(self, shop_name):
         self.cursor.execute("SELECT magazin.idMagazin FROM magazin  WHERE magazin.Nume LIKE %s", (shop_name, ))
@@ -122,7 +120,6 @@ class Database:
             shop_id = result[0][0]
 
         return shop_id
-
 
     def commit(self):
         try:
