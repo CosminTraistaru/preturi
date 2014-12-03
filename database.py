@@ -10,7 +10,6 @@ import random
 class Database:
     connection = None
     cursor = None
-    table_suffix = ""
     temporary_pret_table = ""
     temporary_produs_table = ""
 
@@ -26,15 +25,9 @@ class Database:
             self.connection.autocommit = autocommit
 
             if not autocommit:
-                self.table_suffix = hashlib.sha1(str(random.random() * 65000)).hexdigest()
-                self.temporary_pret_table = "pret_" + self.table_suffix
-                self.temporary_produs_table = "produs_" + self.table_suffix
-
-                query = "CREATE TEMPORARY TABLE `%s` LIKE `pret`" % self.temporary_pret_table
-                self.cursor.execute(query)
-
-                query = "CREATE TEMPORARY TABLE `%s` LIKE `produs`" % self.temporary_produs_table
-                self.cursor.execute(query)
+                table_suffix = hashlib.sha1(str(random.random() * 65000)).hexdigest()
+                self.temporary_pret_table = self.create_temporary_table_pret(table_suffix)
+                self.temporary_produs_table = self.create_temporary_table_produs(table_suffix)
 
         except mysql.connector.Error as error:
             if error.errno == mysql.connector.errorcode.ER_ACCESS_DENIED_ERROR:
@@ -48,6 +41,29 @@ class Database:
         self.connection.close()
         print("Disconnected from db")
 
+    def create_temporary_table_pret(self, table_suffix):
+        query = "CREATE TABLE IF NOT EXISTS `pret_%s` (" \
+                "`idProdus` varchar(40) NOT NULL," \
+                "`Pret` decimal(10,4) NOT NULL," \
+                "`Data` date NOT NULL," \
+                "PRIMARY KEY (`idProdus`,`Data`)" \
+                ") ENGINE=InnoDB DEFAULT CHARSET=latin1;" % table_suffix
+        self.cursor.execute(query)
+        return "pret_" + table_suffix
+
+    def create_temporary_table_produs(self, table_suffix):
+        query = "CREATE TABLE IF NOT EXISTS `produs_%s` (" \
+                "`idProdus` varchar(40) NOT NULL," \
+                "`idCategorie` int(11) NOT NULL DEFAULT '0'," \
+                "`idMagazin` int(11) NOT NULL," \
+                "`NumeProdus` text NOT NULL," \
+                "`LinkProdus` text NOT NULL," \
+                "`PozaProdus` text NOT NULL," \
+                "PRIMARY KEY (`idProdus`)" \
+                ") ENGINE=InnoDB DEFAULT CHARSET=latin1;" % table_suffix
+        self.cursor.execute(query)
+        return "produs_" + table_suffix
+
     def insert_product(self, product, shop_id, scrape_date):
         added_product = 0
 
@@ -60,7 +76,6 @@ class Database:
         product_id = self.get_product_id(product_hash)
 
         if product_id == 0:
-
             query = "INSERT INTO %s (`idProdus`, `idCategorie`, `idMagazin`, `NumeProdus`, `LinkProdus`, `PozaProdus`) " \
                     "VALUES (%%s, '0', %%s, %%s, %%s, %%s)" % self.temporary_produs_table
 
@@ -79,8 +94,8 @@ class Database:
 
         return result
 
-    def get_product_id(self, product_hash):
 
+    def get_product_id(self, product_hash):
         query = "SELECT EXISTS(SELECT 1 FROM `%s` WHERE `idProdus` = %%s)" % self.temporary_produs_table
         self.cursor.execute(query, (product_hash, ))
 
@@ -92,8 +107,8 @@ class Database:
 
         return product_id
 
-    def get_shop_id(self, shop_name):
 
+    def get_shop_id(self, shop_name):
         self.cursor.execute("SELECT magazin.idMagazin FROM magazin  WHERE magazin.Nume LIKE %s", (shop_name, ))
         result = self.cursor.fetchall()
 
@@ -108,8 +123,8 @@ class Database:
 
         return shop_id
 
-    def commit(self):
 
+    def commit(self):
         try:
             query = "INSERT IGNORE INTO `produs` SELECT * FROM `%s`" % self.temporary_produs_table
             self.cursor.execute(query)
