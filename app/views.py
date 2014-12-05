@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, g
+from flask import render_template, redirect, url_for, g, request
 from forms import SearchForm
 from app import app, models
 from app.config import MAX_SEARCH_RESULTS
@@ -36,12 +36,24 @@ def search():
     return redirect(url_for('search_results', query=g.search_form.search.data))
 
 
-@app.route('/search_results/<query>')
-def search_results(query):
+@app.route('/search_results/')
+def search_results():
+    query = request.args['srch-term']
+    product_list = []
     results = models.Produs.query.whoosh_search(query, MAX_SEARCH_RESULTS).all()
+    no_of_results = len(results)
+    for result in results:
+        produs = {}
+        produs['nume'] = result.NumeProdus
+        produs['link'] = result.LinkProdus
+        produs['image'] = result.PozaProdus
+        produs['magazin'] = result.Magazin
+        produs['id'] = result.idProdus
+        product_list.append(produs)
     return render_template('search_results.html',
+                           no_of_results=no_of_results,
                            query=query,
-                           results=results,
+                           results=product_list,
                            title="Rezultate cautare '{termen}'".format(
                                termen=query))
 

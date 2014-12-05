@@ -1,5 +1,8 @@
 #!flask/bin/python
 
+
+import flask.ext.whooshalchemy
+
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_appconfig import AppConfig
@@ -17,3 +20,5 @@ app.config['WHOOSH_BASE'] = WHOOSH_BASE
 db = SQLAlchemy(app)
 
 from app import views, models
+flask.ext.whooshalchemy.whoosh_index(app, models.Produs)
+# models.rebuild_index(models.Produs)
