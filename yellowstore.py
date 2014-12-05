@@ -83,6 +83,8 @@ def _get_image(soup):
 
 def get_subcats():
     soup = get_soup(url)
+    if not soup:
+        return
     parents1 = soup.find_all(attrs={"id": "parent-1"})
     for parent in parents1:
         parent2 = parent.find_all(attrs={"id": "parent-2"})
