@@ -1,7 +1,42 @@
 {% extends "base.html" %}
+{% block styles %}
+{{super()}}
+<link type="text/css" rel='stylesheet' href="{{ url_for('static', filename='static/search.css') }}" />
+{% endblock %}
 {% block content %}
-  <h1>Search results for "{{ query }}":</h1>
-  {% for produs in results %}
-      {% include 'produs.html' %}
-  {% endfor %}
+<div class="container">
+
+    <hgroup class="mb20">
+		<h1>Search Results for "{{ query }}"</h1>
+		<h2 class="lead">
+            <strong class="text-danger">{{ no_of_results}}</strong>
+            results were found for the search for <strong class="text-danger">{{ query }}</strong></h2>
+	</hgroup>
+
+    <section class="col-xs-12 col-sm-6 col-md-12">
+      {% for result in results %}
+		<article class="search-result row">
+			<div class="col-xs-12 col-sm-12 col-md-3">
+				<a href="/produs/{{ result.id }}" title="Rezultate" class="thumbnail">
+                    <img src="{{ result.image }}" alt="{{ result.nume }}" /></a>
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-2">
+				<ul class="meta-search">
+					<li><i class="glyphicon glyphicon-tags"></i> <span>{{ result.magazin }}</span></li>
+				</ul>
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-7 excerpet">
+				<h3><a href="#" title="">{{ result.nume }}</a></h3>
+				<p><div id="price_chart" style="height: 300px;"></div></p>
+			</div>
+			<span class="clearfix borda"></span>
+		</article>
+      {% endfor %}
+
+	</section>
+</div>
+{% endblock %}
+{% block scripts%}
+{{super()}}
+
 {% endblock %}
