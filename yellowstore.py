@@ -117,6 +117,8 @@ def get_product_info():
     yellowstore = csv.writer(csv_file)
     for link in LIST_OF_LINKS:
         soup = get_soup(link)
+        if not soup:
+            continue
         product = soup.find(class_='product-essential')
         name = _get_name(product)
         price = _get_price(product)
