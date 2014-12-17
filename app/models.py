@@ -1,5 +1,9 @@
-from app import app, db
+import threading
+import random
+import time
 import flask.ext.whooshalchemy
+
+from app import app, db
 
 
 class Categorie(db.Model):
@@ -76,3 +80,61 @@ def rebuild_index(model):
             writer.update_document(**index_attrs)
             entry_count += 1
     print "rebuild model complete"
+
+
+def biggest_sale(model):
+    entries = model.query.all()
+
+    def process_entry(prod):
+        """ a) create a list of the dict's keys and values;
+            b) return the key with the max value"""
+        dict = prod.preturi_dict()
+        # seq = [x['value'] for x in dict]
+        # max_value = max(seq)
+        # min_value = min(seq)
+        max_value = max(dict, key=lambda x: x['value'])
+        min_value = min(dict, key=lambda x: x['value'])
+        diff = (min_value['value'] * 100)/max_value['value']
+        return diff
+    sales_list = [
+        {'id': e.idProdus,
+         'value': process_entry(e)}
+        for e in entries
+        ]
+    return max(sales_list, key=lambda x: x['value'])
+
+
+class GetSales(object):
+
+    sale = random.randint(10, 30000)
+    finished = False
+
+    def __init__(self):
+        thread = threading.Thread(target=self.run, args=())
+        thread.daemon = True                            # Daemonize thread
+        thread.start()                                  # Start the execution
+
+    def run(self):
+
+        print "starting the timer {}".format(time.time())
+        start_time = time.time()
+        self.sale = biggest_sale(Produs)['id']
+        print time.time() - start_time
+
+    def get_bigget_sale(self):
+        return self.sale
+
+
+run_in_the_backgroud = GetSales()
+sales = run_in_the_backgroud.get_bigget_sale()
+
+
+def get_product_info(id_prod):
+    produs = {}
+    pr = Produs().query.get(id_prod)
+    produs['preturi'] = pr.preturi_dict()
+    produs['nume'] = pr.NumeProdus
+    produs['link'] = pr.LinkProdus
+    produs['image'] = pr.PozaProdus
+    produs['magazin'] = pr.Magazin
+    return produs

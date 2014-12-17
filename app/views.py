@@ -4,25 +4,19 @@ from app import app, models
 from app.config import MAX_SEARCH_RESULTS
 
 
-
 @app.route('/produs/<product_id>')
 def produs(product_id):
-    produs = {}
-    pr = models.Produs().query.get(product_id)
-    produs['preturi'] = pr.preturi_dict()
-    produs['nume'] = pr.NumeProdus
-    produs['link'] = pr.LinkProdus
-    produs['image'] = pr.PozaProdus
-    produs['magazin'] = pr.Magazin
+    produs = models.get_product_info(product_id)
     return render_template('produs.html', produs=produs,
                            title="Cand imi cumpar {produs} ?".format(
-                               produs=pr.NumeProdus
-                           ))
+                               produs=produs['nume']))
 
 
 @app.route('/')
 def index():
-    return render_template('index.html', title="Home")
+    produs = models.get_product_info(models.sales)
+    return render_template('produs.html', produs=produs,
+                           title="Home".format(produs=produs['nume']))
 
 @app.before_request
 def before_request():
