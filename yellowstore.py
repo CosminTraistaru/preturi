@@ -53,7 +53,8 @@ def get_soup(link):
 
 
 def _get_name(soup):
-    text = soup.find(attrs={"id": "image"})['alt']
+    soup_response = soup.find(attrs={"id": "image"})['alt']
+    text = unicodedata.normalize('NFKD', soup_response).encode('ascii', 'ignore')
     return str(text.replace(',', '').replace('#', ''))
 
 
