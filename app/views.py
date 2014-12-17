@@ -20,7 +20,7 @@ def produs(product_id):
                            ))
 
 
-@app.route('/<product_id>')
+@app.route('/')
 def index():
     return render_template('index.html', title="Home")
 
