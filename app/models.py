@@ -60,6 +60,17 @@ class Produs(db.Model):
         ]
 
 
+def get_product_info(id_prod):
+    produs = {}
+    pr = Produs().query.get(id_prod)
+    produs['preturi'] = pr.preturi_dict()
+    produs['nume'] = pr.NumeProdus
+    produs['link'] = pr.LinkProdus
+    produs['image'] = pr.PozaProdus
+    produs['magazin'] = pr.Magazin
+    return produs
+
+
 def rebuild_index(model):
     """Rebuild search index of Flask-SQLAlchemy model"""
     primary_field = 'idProdus'
@@ -115,26 +126,35 @@ class GetSales(object):
         thread.start()                                  # Start the execution
 
     def run(self):
-
         print "starting the timer {}".format(time.time())
         start_time = time.time()
-        self.sale = biggest_sale(Produs)['id']
+        self.sale = self.biggest_sale(Produs)['id']
         print time.time() - start_time
 
     def get_bigget_sale(self):
         return self.sale
 
+    def process_entry(self, prod):
+        """ a) create a list of the dict's keys and values;
+            b) return the key with the max value"""
+        dict = prod.preturi_dict()
+        # seq = [x['value'] for x in dict]
+        # max_value = max(seq)
+        # min_value = min(seq)
+        max_value = max(dict, key=lambda x: x['value'])
+        min_value = min(dict, key=lambda x: x['value'])
+        diff = (min_value['value'] * 100)/max_value['value']
+        return diff
+
+    def biggest_sale(self, model):
+        entries = model.query.all()
+        sales_list = [
+            {'id': e.idProdus,
+             'value': self.process_entry(e)}
+            for e in entries
+            ]
+        return max(sales_list, key=lambda x: x['value'])
+
 
 run_in_the_backgroud = GetSales()
 sales = run_in_the_backgroud.get_bigget_sale()
-
-
-def get_product_info(id_prod):
-    produs = {}
-    pr = Produs().query.get(id_prod)
-    produs['preturi'] = pr.preturi_dict()
-    produs['nume'] = pr.NumeProdus
-    produs['link'] = pr.LinkProdus
-    produs['image'] = pr.PozaProdus
-    produs['magazin'] = pr.Magazin
-    return produs
