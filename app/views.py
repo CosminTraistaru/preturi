@@ -14,7 +14,7 @@ def produs(product_id):
 
 @app.route('/')
 def index():
-    produs = models.get_product_info(254)
+    produs = models.get_product_info('254e42ca03436e55a1228ce32f25c039b8895119')
     return render_template('produs.html', produs=produs,
                            title="Home".format(produs=produs['nume']))
 
