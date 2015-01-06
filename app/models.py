@@ -25,10 +25,10 @@ class Magazin(db.Model):
 
 class Pret(db.Model):
     __tablename__ = 'pret'
-    idPret = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    idProdus = db.Column(db.Integer, db.ForeignKey('produs.idProdus'))
+    idProdus = db.Column(db.VARCHAR(40),
+                         db.ForeignKey('produs.idProdus'))
     Pret = db.Column(db.DECIMAL(10, 4))
-    Data = db.Column(db.Date)
+    Data = db.Column(db.Date, primary_key=True)
 
     def __repr__(self):
         return "{} {}".format(int(self.Pret), self.Data)
@@ -38,14 +38,14 @@ class Produs(db.Model):
     __searchable__ = ['NumeProdus']
     __tablename__ = 'produs'
 
-    idProdus = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    idProdus = db.Column(db.VARCHAR(40), primary_key=True)
     idCategorie = db.Column(db.Integer, default=0)
     idMagazin = db.Column(db.Integer, db.ForeignKey('magazin.idMagazin'))
     Magazin = db.relationship('Magazin', backref="produs")
     NumeProdus = db.Column(db.Text)
     LinkProdus = db.Column(db.Text)
     PozaProdus = db.Column(db.Text)
-    hash = db.Column(db.VARCHAR(40))
+    # hash = db.Column(db.VARCHAR(40))
     Preturi = db.relationship('Pret', backref="produs", lazy='dynamic')
 
     def __str__(self):
@@ -63,6 +63,7 @@ class Produs(db.Model):
 def get_product_info(id_prod):
     produs = {}
     pr = Produs().query.get(id_prod)
+    # import ipdb;ipdb.set_trace()
     produs['preturi'] = pr.preturi_dict()
     produs['nume'] = pr.NumeProdus
     produs['link'] = pr.LinkProdus
@@ -92,28 +93,12 @@ def rebuild_index(model):
             entry_count += 1
     print "rebuild model complete"
 
-
-def biggest_sale(model):
+def rebuid_id_index(model):
     entries = model.query.all()
-
-    def process_entry(prod):
-        """ a) create a list of the dict's keys and values;
-            b) return the key with the max value"""
-        dict = prod.preturi_dict()
-        # seq = [x['value'] for x in dict]
-        # max_value = max(seq)
-        # min_value = min(seq)
-        max_value = max(dict, key=lambda x: x['value'])
-        min_value = min(dict, key=lambda x: x['value'])
-        diff = (min_value['value'] * 100)/max_value['value']
-        return diff
-    sales_list = [
-        {'id': e.idProdus,
-         'value': process_entry(e)}
-        for e in entries
-        ]
-    return max(sales_list, key=lambda x: x['value'])
-
+    i = 1
+    for entry in entries:
+        entry.idProdus = i
+        i += 1
 
 class GetSales(object):
 
@@ -134,16 +119,14 @@ class GetSales(object):
     def get_bigget_sale(self):
         return self.sale
 
-    def process_entry(self, prod):
+    @staticmethod
+    def process_entry(prod):
         """ a) create a list of the dict's keys and values;
             b) return the key with the max value"""
         dict = prod.preturi_dict()
-        # seq = [x['value'] for x in dict]
-        # max_value = max(seq)
-        # min_value = min(seq)
         max_value = max(dict, key=lambda x: x['value'])
         min_value = min(dict, key=lambda x: x['value'])
-        diff = (min_value['value'] * 100)/max_value['value']
+        diff = 100 - ((min_value['value'] * 100)/max_value['value'])
         return diff
 
     def biggest_sale(self, model):
@@ -156,5 +139,5 @@ class GetSales(object):
         return max(sales_list, key=lambda x: x['value'])
 
 
-run_in_the_backgroud = GetSales()
-sales = run_in_the_backgroud.get_bigget_sale()
+# run_in_the_backgroud = GetSales()
+# sales = run_in_the_backgroud.get_bigget_sale()

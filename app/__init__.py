@@ -22,3 +22,4 @@ db = SQLAlchemy(app)
 from app import views, models
 flask.ext.whooshalchemy.whoosh_index(app, models.Produs)
 # models.rebuild_index(models.Produs)
+# models.rebuid_id_index(models.Produs)
