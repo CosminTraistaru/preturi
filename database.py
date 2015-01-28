@@ -119,4 +119,11 @@ class Database:
 
         except:
             pass
+
+        query = "DROP TABLE `%s`" % self.temporary_produs_table
+        self.cursor.execute(query)
+
+        query = "DROP TABLE %s" % self.temporary_pret_table
+        self.cursor.execute(query)
+
         self.connection.commit();
