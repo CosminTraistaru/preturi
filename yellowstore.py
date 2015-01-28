@@ -53,7 +53,8 @@ def get_soup(link):
 
 
 def _get_name(soup):
-    text = soup.find(attrs={"id": "image"})['alt']
+    soup_response = soup.find(attrs={"id": "image"})['alt']
+    text = unicodedata.normalize('NFKD', soup_response).encode('ascii', 'ignore')
     return str(text.replace(',', '').replace('#', ''))
 
 
@@ -83,6 +84,8 @@ def _get_image(soup):
 
 def get_subcats():
     soup = get_soup(url)
+    if not soup:
+        return
     parents1 = soup.find_all(attrs={"id": "parent-1"})
     for parent in parents1:
         parent2 = parent.find_all(attrs={"id": "parent-2"})
@@ -115,6 +118,8 @@ def get_product_info():
     yellowstore = csv.writer(csv_file)
     for link in LIST_OF_LINKS:
         soup = get_soup(link)
+        if not soup:
+            continue
         product = soup.find(class_='product-essential')
         name = _get_name(product)
         price = _get_price(product)
