@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-import scrapy
+
 from scrapy.contrib.linkextractors import LinkExtractor
 from scrapy.contrib.spiders import CrawlSpider, Rule
 
 from items import Product
+from utils.filters import *
+import re
 
 
 class EvomagSpider(CrawlSpider):
@@ -18,7 +20,7 @@ class EvomagSpider(CrawlSpider):
             LinkExtractor(
                 restrict_xpaths=(
                     '//ul[contains(@class, "ulMeniu")]',
-                    '//li[contains(@class, "next")]',
+                    '//a[contains(@class, "next")]',
                 )
             ),
             process_links='filter_links',
@@ -27,30 +29,27 @@ class EvomagSpider(CrawlSpider):
         ),
     )
 
-    def filter_links(self, links):
-
-        #for link in links:
-        #    print link.url
-
-        return links
-
     def process_page(self, response):
-        products = response.xpath('//*[contains(@class, "prod_list_det")]')
+        products = response.xpath('//div[contains(@class, "produse_liste_filter")]/div[contains(@class, "prod_list_det tabel-view")]')
         products.extract()
 
         for index, selection in enumerate(products):
             product = Product()
 
-            title = selection.xpath('.//div[contains(@class, "list_product_title")]/h2/text()').extract()
-            link = selection.xpath('.//div/div/div/h2/a/@href').extract()
-            img = selection.xpath('.//div/a/img[last()]/@src').extract()
-            #price_int = selection.xpath('.//span[@class="money-int"]/text()').extract()[0]
-            #price_decimal = selection.xpath('.//sup[@class="money-decimal"]/text()').extract()[0]
-            #price = int(str(price_int).translate(None, '.,'))+(0.01 * int(price_decimal))
+            title = selection.xpath('.//div[contains(@class, "list_product_title")]/h2/a/text()').extract()[0]
+            link = selection.xpath('.//div[contains(@class, "list_product_title")]/h2/a/@href').extract()[0]
+            img = selection.xpath('.//div/a/img[last()]/@src').extract()[0]
+            price = selection.xpath('.//div[contains(@class, "price_block_list")]/text()').extract()[1]
 
-            #product['title'] = title.strip()
-            #product['price'] = price
-            #product['link'] = link.strip()
-            #product['image'] = img.strip()
-            print title
-            #yield product
+            # Remove caracthers and keep numbers
+            link = "http://www.evomag.ro" + link.strip()
+            img = "http://www.evomag.ro" + img.strip()
+            price = re.sub('[^0-9,]+', '', price.strip())
+            price = re.sub(',', '.', price)
+
+            product['title'] = title
+            product['price'] = float(price)
+            product['link'] = link
+            product['image'] = img
+
+            yield product

@@ -5,6 +5,7 @@ from scrapy.contrib.spiders import CrawlSpider, Rule
 
 from items import Product
 from utils.filters import *
+import re
 
 
 class ActioncameraSpider(CrawlSpider):
@@ -27,19 +28,11 @@ class ActioncameraSpider(CrawlSpider):
                     '//a[contains(@class, "next")]',
                 )
             ),
-            process_links='filter',
+            process_links='filter_links',
             callback='process_page',
             follow=True,
         ),
     )
-
-    def filter(self, links):
-        accepted_links = filter_links(links, 'black')
-
-        for link in accepted_links:
-            print link
-
-        return accepted_links
 
     def process_page(self, response):
         products = response.xpath('//ol[@id="products-list"]/li')
@@ -51,15 +44,20 @@ class ActioncameraSpider(CrawlSpider):
             title = selection.xpath('./div/div/h2/a/text()').extract()[0]
             link = selection.xpath('./div/div/h2/a/@href').extract()[0]
             img = selection.xpath('./a[contains(@class, "product-image")]/img/@src').extract()[0]
-            price = selection.xpath('./div/div/div/span[contains(@class, "regular-price")]/span/text()').extract()
+            pricebox = selection.xpath('./div/div/div[contains(@class, "price-box")]')
 
-            if len(price) == 0:
-                price = selection.xpath('./div/div/div/p[contains(@class, "special-price")]/span/text()').extract()[0]
-            else:
-                price = price[0]
+            if pricebox.xpath('./span[contains(@class, "regular-price")]'):
+                price = pricebox.xpath('./span[contains(@class, "regular-price")]/span[contains(@class, "price")]/text()').extract()[0]
+            elif pricebox.xpath('./p[contains(@class, "special-price")]'):
+                price = pricebox.xpath('./p[contains(@class, "special-price")]/span[contains(@class, "price")]/text()').extract()[1]
+
+            # Clean up vars
+            # Remove caracthers and keep numbers
+            price = re.sub('[^0-9,]+', '', price.strip())
+            price = re.sub(',', '.', price)
 
             product['title'] = title.strip()
-            product['price'] = price.strip()
+            product['price'] = float(price)
             product['link'] = link.strip()
             product['image'] = img.strip()
 

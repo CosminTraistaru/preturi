@@ -5,6 +5,7 @@ from scrapy.contrib.linkextractors import LinkExtractor
 
 from items import Product
 from utils.filters import *
+import re
 
 
 class EmagSpider(CrawlSpider):
@@ -41,9 +42,12 @@ class EmagSpider(CrawlSpider):
 
             title = selection.xpath('.//form/h2/a/text()').extract()[0]
             link = selection.xpath('.//form/h2/a/@href').extract()[0]
-            img = selection.xpath('.//form/div/a/span/img/@src').extract()[0]
+            img = selection.xpath('.//form/div/a/span/img/@data-src').extract()[0]
             price_int = selection.xpath('.//span[@class="money-int"]/text()').extract()[0]
             price_decimal = selection.xpath('.//sup[@class="money-decimal"]/text()').extract()[0]
+
+            link = "http://www.emag.ro" + link
+            img = re.sub('^//', 'http://', img)
             price = int(str(price_int).translate(None, '.,'))+(0.01 * int(price_decimal))
 
             product['title'] = title.strip()
