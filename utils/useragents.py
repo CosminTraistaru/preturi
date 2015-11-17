@@ -231,4 +231,3 @@ def get_random_user_agent():
 
     return user_agents[random_index]
 
-print get_random_user_agent()
