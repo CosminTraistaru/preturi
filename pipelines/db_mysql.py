@@ -94,6 +94,7 @@ class PricexpertMySQLSave:
 
         try:
             query = "INSERT INTO %s (`idProdus`, `Pret`, `Data`) VALUES (%%s, %%s, %%s)" % self.temporary_pret_table
+
             self.cursor.execute(query, (product_hash, product_price, scrape_date))
 
         except mysql.connector.IntegrityError:

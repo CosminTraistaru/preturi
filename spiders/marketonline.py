@@ -8,7 +8,7 @@ from utils.filters import *
 import re
 
 
-class MediadotSpider(CrawlSpider):
+class MarketonlineSpider(CrawlSpider):
     name = 'marketonline'
     allowed_domains = ['marketonline.ro']
     start_urls = ['http://www.marketonline.ro/']

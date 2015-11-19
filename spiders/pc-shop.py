@@ -8,10 +8,10 @@ from utils.filters import *
 import re
 
 
-class OktalSpider(CrawlSpider):
-    name = 'oktal'
-    allowed_domains = ['oktal.ro']
-    start_urls = ['http://www.oktal.ro/']
+class PCShopSpider(CrawlSpider):
+    name = 'pc-shop'
+    allowed_domains = ['pc-shop.ro']
+    start_urls = ['http://www.pc-shop.ro/']
 
     rules = (
         # Extract links matching 'category.php' (but not matching 'subsection.php')
@@ -19,8 +19,8 @@ class OktalSpider(CrawlSpider):
         Rule(
             LinkExtractor(
                 restrict_xpaths=(
-                    '//div[@class="MenuLeft"]',
-                    '//div[@class="pageresults"]',
+                    '//div[@id="menu"]',
+                    '//div[@class="pagination"]',
                 )
             ),
             process_links='filter_links',
@@ -30,23 +30,24 @@ class OktalSpider(CrawlSpider):
     )
 
     def process_page(self, response):
-        products = response.xpath('//div[@class="productlisting"]/div[@class="productListing-tot"]')
+        products = response.xpath('//div[@class="oferta_produs"]')
 
         for index, selection in enumerate(products):
             product = Product()
 
-            title = selection.xpath('./div[@class="productListing-nume"]/h2/a/text()').extract()[0]
-            link = selection.xpath('./div[@class="productListing-poza"]/a/@href').extract()[0]
-            img = selection.xpath('./div[@class="productListing-poza"]/a/img/@src').extract()[0]
-            price = selection.xpath('./div[@class="productListing-nume"]/div[@class="pret_n"]/b/text()').extract()[0]
+            title = selection.xpath('./div/div[@class="titlu_produs"]/a/text()').extract()[0]
+            link = selection.xpath('./div/div[@class="titlu_produs"]/a/@href').extract()[0]
+            img = selection.xpath('./div/div[@class="imagine_produs"]/a/img[not(contains(@class, "promo"))]/@src').extract()[0]
+            price = selection.xpath('./div/div/div[@class="pret"]/span[@class="valoare" and not(@style)]/text()').extract()[0]
 
             # Remove caracthers and keep numbers
+            link = "http://www.pc-shop.ro" + link.strip()
             price = re.sub('[^0-9,]+', '', price.strip())
             price = re.sub(',', '.', price)
 
-            product['title'] = title
+            product['title'] = title.strip()
             product['price'] = float(price)
             product['link'] = link
-            product['image'] = img
+            product['image'] = img.strip()
 
             yield product

@@ -8,10 +8,10 @@ from utils.filters import *
 import re
 
 
-class OktalSpider(CrawlSpider):
-    name = 'oktal'
-    allowed_domains = ['oktal.ro']
-    start_urls = ['http://www.oktal.ro/']
+class ItarenaSpider(CrawlSpider):
+    name = 'itarena'
+    allowed_domains = ['itarena.ro']
+    start_urls = ['http://www.itarena.ro/']
 
     rules = (
         # Extract links matching 'category.php' (but not matching 'subsection.php')
@@ -19,8 +19,8 @@ class OktalSpider(CrawlSpider):
         Rule(
             LinkExtractor(
                 restrict_xpaths=(
-                    '//div[@class="MenuLeft"]',
-                    '//div[@class="pageresults"]',
+                    '//div[@class="menu-header-body"]',
+                    '//div[contains(@class, "pagination")]',
                 )
             ),
             process_links='filter_links',
@@ -30,15 +30,15 @@ class OktalSpider(CrawlSpider):
     )
 
     def process_page(self, response):
-        products = response.xpath('//div[@class="productlisting"]/div[@class="productListing-tot"]')
+        products = response.xpath('//div[@class="items"]/div[@class="row-fluid"]')
 
         for index, selection in enumerate(products):
             product = Product()
 
-            title = selection.xpath('./div[@class="productListing-nume"]/h2/a/text()').extract()[0]
-            link = selection.xpath('./div[@class="productListing-poza"]/a/@href').extract()[0]
-            img = selection.xpath('./div[@class="productListing-poza"]/a/img/@src').extract()[0]
-            price = selection.xpath('./div[@class="productListing-nume"]/div[@class="pret_n"]/b/text()').extract()[0]
+            title = selection.xpath('./div/div/div/div/div/div/h4[@class="product-title"]/a/text()').extract()[0]
+            link = selection.xpath('./div/div/div/div/div/div/h4[@class="product-title"]/a/@href').extract()[0]
+            img = selection.xpath('./div/div/div/div/div/div[contains(@class, "image")]/a/img/@src').extract()[0]
+            price = selection.xpath('./div/div/div/div/div[contains(@class, "product-list-price")]/text()').extract()[0]
 
             # Remove caracthers and keep numbers
             price = re.sub('[^0-9,]+', '', price.strip())

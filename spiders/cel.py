@@ -8,7 +8,7 @@ from utils.filters import *
 import re
 
 
-class MediadotSpider(CrawlSpider):
+class CelSpider(CrawlSpider):
     name = 'cel'
     allowed_domains = ['cel.ro']
     start_urls = ['http://www.cel.ro/']

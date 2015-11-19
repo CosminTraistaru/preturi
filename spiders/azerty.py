@@ -8,10 +8,10 @@ from utils.filters import *
 import re
 
 
-class OktalSpider(CrawlSpider):
-    name = 'oktal'
-    allowed_domains = ['oktal.ro']
-    start_urls = ['http://www.oktal.ro/']
+class AzertySpider(CrawlSpider):
+    name = 'azerty'
+    allowed_domains = ['azerty.ro']
+    start_urls = ['http://www.azerty.ro/']
 
     rules = (
         # Extract links matching 'category.php' (but not matching 'subsection.php')
@@ -19,8 +19,8 @@ class OktalSpider(CrawlSpider):
         Rule(
             LinkExtractor(
                 restrict_xpaths=(
-                    '//div[@class="MenuLeft"]',
-                    '//div[@class="pageresults"]',
+                    '//div[@id="navigation"]',
+                    '//div[@class="paginationtop"]',
                 )
             ),
             process_links='filter_links',
@@ -30,17 +30,18 @@ class OktalSpider(CrawlSpider):
     )
 
     def process_page(self, response):
-        products = response.xpath('//div[@class="productlisting"]/div[@class="productListing-tot"]')
+        products = response.xpath('//div[@class="pcontainerlist"]/div[@class="box_produs"]')
 
         for index, selection in enumerate(products):
             product = Product()
 
-            title = selection.xpath('./div[@class="productListing-nume"]/h2/a/text()').extract()[0]
-            link = selection.xpath('./div[@class="productListing-poza"]/a/@href').extract()[0]
-            img = selection.xpath('./div[@class="productListing-poza"]/a/img/@src').extract()[0]
-            price = selection.xpath('./div[@class="productListing-nume"]/div[@class="pret_n"]/b/text()').extract()[0]
+            title = selection.xpath('./div[@class="specs"]/div/a/text()').extract()[0]
+            link = selection.xpath('./a/@href').extract()[0]
+            img = selection.xpath('./a/img/@src').extract()[0]
+            price = selection.xpath('./ul/li[1]/span[2]/text()').extract()[0]
 
             # Remove caracthers and keep numbers
+            link = "http://www.azerty.ro" + link.strip()
             price = re.sub('[^0-9,]+', '', price.strip())
             price = re.sub(',', '.', price)
 

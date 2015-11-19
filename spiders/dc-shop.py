@@ -8,7 +8,7 @@ from utils.filters import *
 import re
 
 
-class MediadotSpider(CrawlSpider):
+class DCShopSpider(CrawlSpider):
     name = 'dc-shop'
     allowed_domains = ['dc-shop.ro']
     start_urls = ['http://www.dc-shop.ro/']

@@ -19,8 +19,8 @@ class F64Spider(CrawlSpider):
         Rule(
             LinkExtractor(
                 restrict_xpaths=(
-                    '//ul[@id="menu_nav")]',
-                    '//a[@class="arr_right"]',
+                    '//ul[@id="menu_nav"]',
+                    '//div[@class="pages_container_div"]',
                 )
             ),
             process_links='filter_links',
@@ -30,21 +30,23 @@ class F64Spider(CrawlSpider):
     )
 
     def process_page(self, response):
-        products = response.xpath('//div[@class="products_list_container"]')
+        products = response.xpath('//div[@class="product_list_container"]')
 
         for index, selection in enumerate(products):
             product = Product()
 
-            title = selection.xpath('./div/div/h2/a/text()').extract()[0]
-            link = selection.xpath('./div/div/h2/a/@href').extract()[0]
-            img = selection.xpath('./a[contains(@class, "product-image")]/img/@src').extract()[0]
-            pricebox = selection.xpath('./div/div/div[contains(@class, "price-box")]')
+            title = selection.xpath('./table/tr/td[@class="product_title"]/a/h2/text()').extract()[0]
+            link = selection.xpath('./table/tr/td[@class="product_title"]/a/@href').extract()[0]
 
-            if pricebox.xpath('./span[contains(@class, "regular-price")]'):
-                price = pricebox.xpath('./span[contains(@class, "regular-price")]/span[contains(@class, "price")]/text()').extract()[0]
-            elif pricebox.xpath('./p[contains(@class, "special-price")]'):
-                price = pricebox.xpath('./p[contains(@class, "special-price")]/span[contains(@class, "price")]/text()').extract()[1]
+            if selection.xpath('./table/tr/td[@class="image_container"]/div/table/tr/td/a/img/@src'):
+                img = selection.xpath('./table/tr/td[@class="image_container"]/div/table/tr/td/a/img/@src').extract()[0]
+            elif selection.xpath('./table/tr/td[@class="image_container"]/div/table/tr/td/a/@rel'):
+                img = selection.xpath('./table/tr/td[@class="image_container"]/div/table/tr/td/a/@rel').extract()[0]
 
+            price_int = selection.xpath('./table/tr/td[@class="product_details_right"]/table/tr/td/table/tr/td/div/span[@class="price_list_int"]/text()').extract()[0]
+            price_decimal = selection.xpath('./table/tr/td[@class="product_details_right"]/table/tr/td/table/tr/td/div/span[@class="price_list_int"]/sup/text()').extract()[0]
+
+            price = price_int + "," + price_decimal
             # Clean up vars
             # Remove caracthers and keep numbers
             price = re.sub('[^0-9,]+', '', price.strip())
@@ -54,5 +56,5 @@ class F64Spider(CrawlSpider):
             product['price'] = float(price)
             product['link'] = link.strip()
             product['image'] = img.strip()
-
-            yield product
+            print product
+            # yield product
