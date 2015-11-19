@@ -4,7 +4,7 @@ import socket
 
 hostname = socket.gethostname()
 
-if hostname == "bobo-VirtualBox":
+if hostname == "bobo-virtualbox":
     mysqlconfig = {
         'user': 'preturi',
         'password': 'preturi',
