@@ -14,7 +14,7 @@ class EmagSpider(CrawlSpider):
 
     allowed_domains = ['emag.ro']
 
-    start_urls = ["http://www.emag.ro/"]
+    start_urls = ["http://www.emag.ro/homepage"]
 
     rules = (
         # Extract links matching 'category.php' (but not matching 'subsection.php')
